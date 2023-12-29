@@ -8,7 +8,20 @@ error_exit()
 }
 
 # Check if cargo is installed
-command -v cargo >/dev/null 2>&1 || error_exit "Cargo is required, but it's not installed. Aborting."
+if ! command -v cargo >/dev/null 2>&1; then
+    echo "Cargo is not installed. Attempting to install Rust..."
+
+    # Installing Rust via rustup
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+    # Check if the Rust installation was successful
+    if [ $? -ne 0 ]; then
+        error_exit "Failed to install Rust. Aborting."
+    fi
+
+    # Source the cargo environment script for immediate use of cargo
+    source $HOME/.cargo/env
+fi
 
 # Build the project in release mode
 echo "Building the oxygen project..."
