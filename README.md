@@ -1,5 +1,5 @@
 # Oxygen
-A single shell for autonomous, built in Rust.
+A single shell for autonomous agents and their hoomans, built in Rust.
 
 ## Motivation
 - Sick of bouncing between languages and re-writing code
