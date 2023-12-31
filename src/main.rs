@@ -3,7 +3,7 @@ use std::io::Write; // to use flush
 use std::process::Command; //to run commands on the system
 use std::process::Output; //to run commands on the system
 
-
+/// The main function kicking off the shell loop
 fn main() {
     loop {
         print!("oxygen> "); // Print the prompt
@@ -35,6 +35,7 @@ fn main() {
     }
 }
 
+/// Handles all slash commands
 fn handle_slash_command(command: &str) {
     // Remove the slash from the command
     let command = command.trim_start_matches('\\');
@@ -47,8 +48,8 @@ fn handle_slash_command(command: &str) {
     }
 }
 
+/// Handles all commands that are not slash commands
 fn handle_command(command: &str) {
-
     let mut command = command.split_whitespace();
     let command_name = command.next().unwrap();
 
@@ -58,6 +59,7 @@ fn handle_command(command: &str) {
     }
 }
 
+/// Runs a command on the local system
 fn run_local_command(command: &str) {
     // Confirm with user if it's okay to run the command locally
     println!("Confirm running command '{}' locally? (y/n)", command);
