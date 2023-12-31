@@ -2,9 +2,25 @@ use std::io;
 use std::io::Write; // to use flush
 use std::process::Command; //to run commands on the system
 use std::process::Output; //to run commands on the system
+use std::sync::{Arc, Mutex};
+
+use ctrlc;
+
+// mods 
+mod core;
+use core::history::History;
 
 /// The main function kicking off the shell loop
 fn main() {
+    let history = Arc::new(Mutex::new(History::init()));
+
+    // Set the Ctrl-C handler
+    let history_for_ctrlc = Arc::clone(&history);
+    ctrlc::set_handler(move || {
+        history_for_ctrlc.lock().unwrap().save();
+        std::process::exit(0);
+    }).expect("Error setting Ctrl-C handler");
+    
     loop {
         print!("oxygen> "); // Print the prompt
         io::stdout().flush().unwrap(); // Ensure the prompt is displayed immediately
@@ -12,6 +28,10 @@ fn main() {
         let mut input = String::new();
         io::stdin().read_line(&mut input).unwrap(); // Read user input
         let input = input.trim(); // Trim newline characters
+        
+        // Add the command to the history
+        let mut history = history.lock().unwrap();
+        history.add(input.to_string());
 
         // check if the input is a slash command
         let first_char = input.chars().next(); // Get the first character
@@ -33,6 +53,9 @@ fn main() {
             _ => handle_command(input)
         }
     }
+
+    //save the history
+    history.lock().unwrap().save();
 }
 
 /// Handles all slash commands
