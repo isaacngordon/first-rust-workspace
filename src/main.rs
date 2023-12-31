@@ -1,5 +1,8 @@
+use std::env;
 use std::io;
-use std::io::Write; // to use flush
+use std::io::Write; 
+use std::path::Path;
+// to use flush
 use std::process::Command; //to run commands on the system
 use std::process::Output; //to run commands on the system
 use std::sync::{Arc, Mutex};
@@ -72,13 +75,21 @@ fn handle_slash_command(command: &str) {
 }
 
 /// Handles all commands that are not slash commands
-fn handle_command(command: &str) {
-    let mut command = command.split_whitespace();
-    let command_name = command.next().unwrap();
+fn handle_command(input: &str) {
+    let mut parts = input.trim().split_whitespace();
+    let command = parts.next().unwrap();
+    let args = parts;
 
-    match command_name {
-        // "run" => run_local_command(command.as_str()),
-        _ => println!("Command not found: {}", command_name)
+    match command {
+        "cd" => {
+            // default to '/' as new directory if one was not provided
+            let new_dir = args.peekable().peek().map_or("/", |x| *x);
+            let root = Path::new(new_dir);
+            if let Err(e) = env::set_current_dir(&root) {
+                eprintln!("{}", e);
+            }
+        }
+        _ => println!("Command not found: {}", command)
     }
 }
 
