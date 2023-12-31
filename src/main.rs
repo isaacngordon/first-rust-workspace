@@ -81,6 +81,15 @@ fn handle_command(input: &str) {
     let args = parts;
 
     match command {
+        /*
+         * ...the chdir command correctly changed the current directory of the process 
+         * created to execute it, but this process promptly terminated and had no effect 
+         * whatsoever on its parent shell! It was necessary to make chdir a special 
+         * command, executed internally within the shell. It turns out that several 
+         * command-like functions have the same property, for example login.
+         * 
+         * source: https://www.bell-labs.com/usr/dmr/www/hist.html
+         */
         "cd" => {
             // default to '/' as new directory if one was not provided
             let new_dir = args.peekable().peek().map_or("/", |x| *x);
