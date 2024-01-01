@@ -95,8 +95,16 @@ if ! command -v nu >/dev/null 2>&1; then
     install_with_cargo nu
 fi
 
+# cargo-info is a cargo plugin to display information about a crate
+# Check if cargo-info is installed. if not, install it
+if ! command -v cargo-info >/dev/null 2>&1; then
+    echo "Cargo-info is not installed. Attempting to install Cargo-info..."
+    install_with_cargo cargo-info
+fi
+
+
 # --------------------------------------------------
-# Aliasable tools/commands installed via cargo
+# Aliasable cli programs installed via cargo
 # --------------------------------------------------
 
 # exa is a modern replacement for ls
@@ -120,6 +128,33 @@ if ! command -v rg >/dev/null 2>&1; then
     install_with_cargo ripgrep
 fi
 
+# speedtest-rs is a command line interface for testing internet bandwidth using speedtest.net
+# Check if speedtest-rs is installed. if not, install it
+if ! command -v speedtest-rs >/dev/null 2>&1; then
+    echo "Speedtest-rs is not installed. Attempting to install Speedtest-rs..."
+    install_with_cargo speedtest-rs
+fi
+
+
+# --------------------------------------------------
+# Developer tools 
+# --------------------------------------------------
+
+# check for vscode and install it if it is not install using cargo
+if ! command -v code >/dev/null 2>&1; then
+    echo "VSCode is not installed. Attempting to install VSCode..."
+    install_with_cargo code
+fi
+
+# bacon is a background rust compiler with hot reloading https://crates.io/crates/bacon
+# Check if bacon is installed. if not, install it
+if ! command -v bacon >/dev/null 2>&1; then
+    echo "Bacon is not installed. Attempting to install Bacon..."
+    install_with_cargo bacon
+fi
+
+
+
 # --------------------------------------------------
 # Addtional tools/commands installed via cargo
 # --------------------------------------------------
@@ -137,6 +172,35 @@ if ! command -v mprocs >/dev/null 2>&1; then
     echo "Mprocs is not installed. Attempting to install Mprocs..."
     install_with_cargo mprocs
 fi
+
+# irust is an interactive rust REPL
+# Check if irust is installed. if not, install it
+if ! command -v irust >/dev/null 2>&1; then
+    echo "Irust is not installed. Attempting to install Irust..."
+    install_with_cargo irust
+fi
+
+# similary, there is evcxr_jupyter for jupyter notebooks, which is a rust kernel for jupyter
+# Check if evcxr_jupyter is installed. if not, install it
+if ! command -v evcxr_jupyter >/dev/null 2>&1; then
+    echo "Evcxr_jupyter is not installed. Attempting to install Evcxr_jupyter..."
+    install_with_cargo evcxr_jupyter
+fi
+
+# ncspot is a spotify client for the terminal
+# Check if ncspot is installed. if not, install it
+if ! command -v ncspot >/dev/null 2>&1; then
+    echo "Ncspot is not installed. Attempting to install Ncspot..."
+    install_with_cargo ncspot
+fi
+
+# wiki-tui is a terminal user interface for wikipedia
+# Check if wiki-tui is installed. if not, install it
+if ! command -v wiki-tui >/dev/null 2>&1; then
+    echo "Wiki-tui is not installed. Attempting to install Wiki-tui..."
+    install_with_cargo wiki-tui
+fi
+
 
 # --------------------------------------------------
 # Build the oxygen project in release mode
