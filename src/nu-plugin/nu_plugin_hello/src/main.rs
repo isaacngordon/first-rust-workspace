@@ -61,7 +61,6 @@ impl Plugin for Hello {
         call: &EvaluatedCall,
         input: &Value,
     ) -> Result<Value, LabeledError> {
-        assert_eq!(name, "hello");
         match name {
             "hello" => self.greet(call, input),
             "goodbye" => Ok(Value::String {

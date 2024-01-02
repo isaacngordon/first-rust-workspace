@@ -726,6 +726,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "nu_plugin_llm"
+version = "0.1.0"
+dependencies = [
+ "nu-plugin",
+ "nu-protocol",
+]
+
+[[package]]
 name = "num-format"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
