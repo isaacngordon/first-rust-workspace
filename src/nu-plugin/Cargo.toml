@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [
+members = [ "nu_plugin_example",
     "nu_plugin_hello", "nu_plugin_llm",
 ]
 
