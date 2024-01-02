@@ -12,7 +12,7 @@ def main [ name: string ] = {
     # Set the contents of main.ts to a template
     cd src
     rm main.rs
-    open "Your template contents here" | save main.rs
+    "Your template contents here" | save main.rs
     cd ..
 
     echo $"New plugin `nu_plugin_($name)` from default template."
