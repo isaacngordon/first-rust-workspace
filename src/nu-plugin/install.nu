@@ -1,8 +1,8 @@
 def install_plugin [name: string] {
     echo $"Installing plugin: `($name)`"
-    # cd $name
-    # cargo install --path .
-    # cd ..
+    cd $name
+    cargo install --path .
+    cd ..
 }
 
 def main [name?: string] {
