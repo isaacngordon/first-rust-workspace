@@ -194,12 +194,13 @@ if ! command -v wiki-tui >/dev/null 2>&1; then
     install_with_cargo wiki-tui
 fi
 
-# ncspot is a spotify client for the terminal
-# Check if ncspot is installed. if not, install it
-if ! command -v ncspot >/dev/null 2>&1; then
-    echo "Ncspot is not installed. Attempting to install Ncspot..."
-    install_with_cargo ncspot
-fi
+
+# # ncspot is a spotify client for the terminal
+# # Check if ncspot is installed. if not, install it
+# if ! command -v ncspot >/dev/null 2>&1; then
+#     echo "Ncspot is not installed. Attempting to install Ncspot..."
+#     install_with_cargo ncspot
+# fi
 
 
 # --------------------------------------------------
