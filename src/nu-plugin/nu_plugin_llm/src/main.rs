@@ -6,7 +6,14 @@ struct LLM;
 
 impl LLM {
     fn prompt(&self, call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
-        // Add your code here
+        // parse inputs
+        // service enum Service("openai", "gemini", "local"), default to openai
+        // model depends on Service, default to "gpt4-turbo" for openai
+        // prompt is a string, required
+        // temperature is a float, default to 0.1
+        // max_tokens is an int, default to 1000. if flag "short" is set, default to 150. 
+        //  if flag "medium" is set, default to 500. if flag "long" is set, default to 2000.
+
         let response = "dummy response for now";
         Ok(Value::String {
             val: format!("openai says: {}", response),
