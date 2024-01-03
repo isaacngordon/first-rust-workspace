@@ -9,7 +9,7 @@ use std::sync::{Arc, Mutex};
 
 use ctrlc;
 
-use crate::core::history::History;
+use crate::history::History;
 
 /// The main function kicking off the shell loop
 pub fn run() {

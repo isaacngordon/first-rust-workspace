@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 nu-plugin = "0.88.1"
 nu-protocol = "0.88.1"
+core = { path = "../../core" }
+futures = "0.3.30"
