@@ -4,13 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-core = { path = "src/core" } 
 openai = {path = "src/crates/services/openai"}
 tokio = { version = "1.35.1", features = ["full"] }
 
 [workspace]
 members = [
-    "src/core", "src/crates/services/openai",
+    "src/crates/misc/first-crate", "src/crates/services/openai",
     "src/nu-plugin/nu_plugin_example",
     "src/nu-plugin/nu_plugin_hello",
     "src/nu-plugin/nu_plugin_llm",
