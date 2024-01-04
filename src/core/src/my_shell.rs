@@ -82,20 +82,20 @@ fn exec(command: &str) -> Output {
         } // Greet the world!
         "clear" => {
             print!("{}[2J{}[H", 27 as char, 27 as char);
-            return Output {
+            Output {
                 status: ExitStatus::from_raw(0),
                 stdout: Vec::new(),
                 stderr: Vec::new(),
-            };
+            }
         } // Clear the terminal and move cursor to top-left  "clear" => print!("{}[2J", 27 as char), // Clear the terminal,
         "" => {
-            return Output {
+            Output {
                 status: ExitStatus::from_raw(0), // Use a dummy exit status for non-command cases
                 stdout: Vec::new(),
                 stderr: Vec::new(),
-            };
+            }
         } // Ignore empty input and show the prompt again
-        _ => return exec_command(command),
+        _ => exec_command(command),
     }
 }
 
@@ -110,18 +110,18 @@ fn exec_slash_command(command: &str) -> Output {
         "run" => return exec_local_command(command.trim_start_matches("run ")),
         _ => {
             println!("Slash Command not found: {}", command);
-            return Output {
+            Output {
                 status: ExitStatus::from_raw(0), // Use a dummy exit status for non-command cases
                 stdout: Vec::new(),
                 stderr: Vec::new(),
-            };
+            }
         }
     }
 }
 
 /// Handles all commands that are not slash commands
 fn exec_command(input: &str) -> Output {
-    let mut parts = input.trim().split_whitespace();
+    let mut parts = input.split_whitespace();
     let command = parts.next().unwrap();
     let args = parts;
 
@@ -139,25 +139,25 @@ fn exec_command(input: &str) -> Output {
             // default to '/' as new directory if one was not provided
             let new_dir = args.peekable().peek().map_or("/", |x| *x);
             let root = Path::new(new_dir);
-            if let Err(e) = env::set_current_dir(&root) {
+            if let Err(e) = env::set_current_dir(root) {
                 return Output {
                     status: ExitStatus::from_raw(1), // Non-zero exit status for error
                     stdout: Vec::new(),
                     stderr: format!("Error changing directory: {}\n", e).into_bytes(),
                 };
             }
-            return Output {
+            Output {
                 status: ExitStatus::from_raw(0), // Use a dummy exit status for non-command cases
                 stdout: Vec::new(),
                 stderr: Vec::new(),
-            };
+            }
         }
         _ => {
-            return Output {
+            Output {
                 status: ExitStatus::from_raw(0), // Use a dummy exit status for non-command cases
                 stdout: Vec::new(),
                 stderr: format!("{}: command not found\n", command).into_bytes(),
-            };
+            }
         }
     }
 }
@@ -198,7 +198,7 @@ fn exec_local_command(command: &str) -> Output {
                         stderr: Default::default(),
                     }
                 });
-            return output;
+            output
         }
         "n" | "esc" => {
             let msg = "Command execution cancelled";
