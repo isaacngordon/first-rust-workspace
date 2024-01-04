@@ -1,12 +1,12 @@
 use nu_plugin::{serve_plugin, EvaluatedCall, LabeledError, MsgPackSerializer, Plugin};
 use nu_protocol::{PluginSignature, Type, Value};
 
-use core::llm::openai;
+use openai::chat;
 
 struct LLM;
 
 impl LLM {
-    fn print_message(msg: &openai::Message) {
+    fn print_message(msg: &chat::Message) {
         let emoji = match msg.role.as_str() {
             "assistant" => "🤖",
             "user" => "👤",
@@ -26,16 +26,16 @@ impl LLM {
         //  if flag "medium" is set, default to 500. if flag "long" is set, default to 2000.
 
         let user_msg: String = call.req(0)?;
-        let conversation = openai::Conversation { messages: vec![] };
+        let conversation = vec![] as Vec<chat::Message>;
 
-        Self::print_message(&openai::Message {
+        Self::print_message(&chat::Message {
             role: "user".to_string(),
             content: user_msg.clone(),
         });
 
         // turning an async function into a blocking function
         let response = futures::executor::block_on(
-            openai::prompt(user_msg, conversation)
+            chat::prompt(user_msg, conversation)
         );
 
         match response {

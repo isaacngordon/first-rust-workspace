@@ -1,11 +1,11 @@
-use core::llm::openai;
+use openai::chat;
 use tokio::runtime::Runtime;
 
 fn main() {
     let res = Runtime::new().unwrap().block_on(
-        openai::prompt(
+        chat::prompt(
             String::from("MARCO!"),
-            openai::Conversation { messages: vec![] }    
+            vec![]   
         )
     );
 

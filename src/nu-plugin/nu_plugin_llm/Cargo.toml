@@ -8,5 +8,5 @@ edition = "2021"
 [dependencies]
 nu-plugin = "0.88.1"
 nu-protocol = "0.88.1"
-core = { path = "../../core" }
+openai = { path = "../../crates/services/openai" }
 futures = "0.3.30"

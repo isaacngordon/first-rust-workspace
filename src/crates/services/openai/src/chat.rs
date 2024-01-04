@@ -10,12 +10,7 @@ pub struct Message {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Conversation {
-    pub messages: Vec<Message>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-enum OpenAIChatModel {
+pub enum ChatModel {
     GPT3,
     Gpt3Turbo,
     GPT4,
@@ -25,22 +20,22 @@ enum OpenAIChatModel {
     Davinci002,
 }
 
-impl OpenAIChatModel {
+impl ChatModel {
     fn name(&self) -> String {
         match self {
-            OpenAIChatModel::GPT3 => "gpt-3",
-            OpenAIChatModel::Gpt3Turbo => "gpt-3.5-turbo",
-            OpenAIChatModel::GPT4 => "gpt-4",
-            OpenAIChatModel::Gpt4Turbo => "gpt-4-turbo",
-            OpenAIChatModel::Gpt3TurboInstruct => "gpt-3.5-turbo-instruct",
-            OpenAIChatModel::Babbage002 => "babbage-002",
-            OpenAIChatModel::Davinci002 => "davinci-002",
+            ChatModel::GPT3 => "gpt-3",
+            ChatModel::Gpt3Turbo => "gpt-3.5-turbo",
+            ChatModel::GPT4 => "gpt-4",
+            ChatModel::Gpt4Turbo => "gpt-4-turbo",
+            ChatModel::Gpt3TurboInstruct => "gpt-3.5-turbo-instruct",
+            ChatModel::Babbage002 => "babbage-002",
+            ChatModel::Davinci002 => "davinci-002",
         }
         .to_string()
     }
 }
 
-fn serialize_openai_chat_model<S>(model: &OpenAIChatModel, serializer: S) -> Result<S::Ok, S::Error>
+fn serialize_openai_chat_model<S>(model: &ChatModel, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
@@ -48,9 +43,9 @@ where
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct OpenAIChatConfig {
+pub struct Payload {
     #[serde(serialize_with = "serialize_openai_chat_model")]
-    model: OpenAIChatModel,
+    model: ChatModel,
     messages: Vec<Message>,
     frequency_penalty: Option<f32>,
     logit_bias: Option<f32>,
@@ -70,10 +65,10 @@ pub struct OpenAIChatConfig {
     user: Option<String>,
 }
 
-impl Default for OpenAIChatConfig {
+impl Default for Payload {
     fn default() -> Self {
-        OpenAIChatConfig {
-            model: OpenAIChatModel::Gpt3Turbo,
+        Payload {
+            model: ChatModel::Gpt3Turbo,
             messages: vec![],
             frequency_penalty: None,
             logit_bias: None,
@@ -95,20 +90,15 @@ impl Default for OpenAIChatConfig {
     }
 }
 
-pub async fn chat(messages: Vec<Message>) -> Result<String, String> {
+pub async fn chat(payload: Payload) -> Result<String, String> {
     let api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY not set");
     let client = Client::new();
-
-    let config = OpenAIChatConfig {
-        messages,
-        ..Default::default()
-    };
 
     let response = client
         .post("https://api.openai.com/v1/chat/completions")
         .header("Content-Type", "application/json")
         .header("Authorization", format!("Bearer {}", api_key))
-        .json(&json!(config))
+        .json(&json!(payload))
         .send()
         .await
         .map_err(|e| format!("Failed to send request: {}", e))?;
@@ -129,13 +119,18 @@ pub async fn chat(messages: Vec<Message>) -> Result<String, String> {
     }
 }
 
-pub async fn prompt(prompt: String, mut conversation: Conversation) -> Result<Message, String> {
-    conversation.messages.push(Message {
+pub async fn prompt(text: String, mut conversation: Vec<Message>) -> Result<Message, String> {
+    conversation.push(Message {
         role: "user".to_string(),
-        content: prompt,
+        content: text,
     });
 
-    let response = chat(conversation.messages).await;
+    let payload = Payload {
+        messages: conversation,
+        ..Default::default()
+    };
+
+    let response = chat(payload).await;
     match response {
         Ok(body) => {
             let body_value = serde_json::from_str::<serde_json::Value>(&body)
@@ -147,4 +142,10 @@ pub async fn prompt(prompt: String, mut conversation: Conversation) -> Result<Me
         }
         Err(e) => Err(format!("Chat API error: {}", e)),
     }
+}
+
+pub fn prompt_sync(text: String, conversation: Vec<Message>) -> Result<Message, String> {
+    let rt = tokio::runtime::Runtime::new().map_err(|e| format!("Failed to create runtime: {}", e))?;
+
+    rt.block_on(prompt(text, conversation))
 }
