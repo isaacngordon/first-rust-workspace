@@ -3,6 +3,7 @@
 # SOURCE: https://github.com/security-union/yew-actix-template/blob/main/start_dev.sh
 
 # WARNING!! use this script while running without docker.
+#  also this prob doesnt work yet :D --mimz
 
 
 export TRUNK_SERVE_PORT=8080
