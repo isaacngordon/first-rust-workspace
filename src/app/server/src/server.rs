@@ -1,6 +1,7 @@
 use openai::chat;
 use actix_web::{get, App, HttpResponse, HttpServer, Responder, web};
-use std::sync::Mutex;
+
+use types::AppState;
 
 async fn p() -> String {
     let res = chat::prompt(
@@ -19,11 +20,11 @@ async fn hello() -> impl Responder {
     HttpResponse::Ok().body(p().await)
 }
 
-struct Counter {
-    counter: Mutex<i32>, // <- Mutex is necessary to mutate safely across threads
-}
+// struct Counter {
+//     counter: Mutex<i32>, // <- Mutex is necessary to mutate safely across threads
+// }
 
-async fn index(data: actix_web::web::Data<Counter>) -> String {
+async fn index(data: actix_web::web::Data<AppState>) -> String {
     let mut counter = data.counter.lock().unwrap(); // <- get counter's MutexGuard
     *counter += 1; // <- access counter inside MutexGuard
 
@@ -31,17 +32,18 @@ async fn index(data: actix_web::web::Data<Counter>) -> String {
 }
 
 #[actix_web::main]
-pub async fn server() -> std::io::Result<()> {
+pub async fn start_server() -> std::io::Result<()> {
 
      // Note: web::Data created _outside_ HttpServer::new closure
-     let counter = web::Data::new(Counter {
-        counter: Mutex::new(0),
+     let app_state = web::Data::new(AppState {
+        title: String::from("Oxygen"),
+        ..Default::default()
     });
 
     HttpServer::new(move || {
         // move counter into the closure
         App::new()
-        .app_data(counter.clone()) // <- register the created data
+        .app_data(app_state.clone()) // <- register the created data
         // .service(hello)
         .route("/", web::get().to(index))
     })
