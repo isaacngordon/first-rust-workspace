@@ -1,16 +1,11 @@
-use openai::chat;
-use tokio::runtime::Runtime;
+mod web;
+
 
 fn main() {
-    let res = Runtime::new().unwrap().block_on(
-        chat::prompt(
-            String::from("MARCO!"),
-            vec![]   
-        )
-    );
-
-    match res {
-        Ok(msg) => println!("Response: {}", msg.content),
-        Err(e) => println!("Error: {}", e),
+    let r = web::server::server();
+    // Runs after the server comes down it seems
+    match r {
+        Ok(_) => println!("Server started!"),
+        Err(e) => println!("Error: {}", e)
     }
 }
