@@ -142,8 +142,9 @@ fi
 
 # check for vscode and install it if it is not install using cargo
 if ! command -v code >/dev/null 2>&1; then
-    echo "VSCode is not installed. Attempting to install VSCode..."
-    install_with_cargo code
+#    echo "VSCode is not installed. Attempting to install VSCode..."
+#    install_with_cargo vscode
+    echo "Install VS Code manually"
 fi
 
 # bacon is a background rust compiler with hot reloading https://crates.io/crates/bacon
