@@ -10,7 +10,7 @@ tokio = { version = "1.35.1", features = ["full"] }
 members = [ 
     "src/app/client", 
     "src/app/server", 
-    "src/app/types", 
+    "src/app/types", "src/crates/misc/conway", 
     "src/crates/misc/first-crate", "src/crates/services/openai",
     "src/nu-plugin/nu_plugin_example",
     "src/nu-plugin/nu_plugin_hello",
