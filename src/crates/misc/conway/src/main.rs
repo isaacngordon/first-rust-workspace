@@ -3,10 +3,10 @@ mod game_of_life;
 // use std::time::Duration;
 
 fn main() {
-    const n : usize = 4;
+    const N : usize = 4;
     // const max_fps : f64 = 60.0;
 
-    let mut game = game_of_life::Slice::new(n);
+    let mut game = game_of_life::Slice::new(N);
     game.randomize();
     println!("{}", game);
 
