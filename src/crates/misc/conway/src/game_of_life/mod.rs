@@ -1,7 +1,6 @@
 use std::fmt;
 
-
-
+#[derive(Clone)]
 pub struct Slice {
     n: usize,
     cells: Vec<bool>,
@@ -25,66 +24,73 @@ impl Slice {
     }
 
     pub fn next_generation_naive(&mut self) {
-        let mut next_cells = vec![false; self.n * self.n];  
+        let mut next_cells = vec![false; self.n * self.n];
 
         for row in 0..self.n {
             for col in 0..self.n {
                 let p = row * self.n + col;
                 let live_neighbors = self.count_live_neighbors(p);
 
-                if self.cells[p] {
-                    // Any live cell with fewer than two live neighbors dies
-                    // as if by underpopulation.
-                    if live_neighbors < 2 {
-                        next_cells[p] = false;
-                    }
-                    // Any live cell with two or three live neighbors lives
-                    // on to the next generation.
-                    else if live_neighbors == 2 || live_neighbors == 3 {
-                        next_cells[p] = true;
-                    }
-                    // Any live cell with more than three live neighbors dies
-                    // as if by overpopulation.
-                    else {
-                        next_cells[p] = false;
-                    }
-                } else {
-                    // Any dead cell with exactly three live neighbors becomes
-                    // a live cell, as if by reproduction.
-                    if live_neighbors == 3 {
-                        next_cells[p] = true;
-                    }
-                }
+                next_cells[p] = match (self.cells[p], live_neighbors) {
+                    (true, 0..=1) => false, // Any live cell with fewer than two live neighbors dies as if by underpopulation.
+                    (true, 2..=3) => true, // Any live cell with two or three live neighbors lives on to the next generation.
+                    (true, _) => false,    // Any live cell with more than three live neighbors dies as if by overpopulation.
+                    (false, 3) => true,    // Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
+                    _ => self.cells[p],    // Otherwise, the cell remains unchanged.
+                };
+                   
             }
         }
 
         self.cells = next_cells;
     }
 
-    #[allow(dead_code)]
     pub fn next_generation_naive_optimized(&mut self) {
-        let mut next_cells = vec![false; self.n * self.n];  
-        let alive_indices = self.cells.iter().enumerate().filter(|(_, &alive)| alive).map(|(i, _)| i).collect::<Vec<_>>();
+        let mut next_cells = vec![false; self.n * self.n];
 
-        for &index in &alive_indices {
+        let mut queue = self
+            .cells
+            .iter()
+            .enumerate()
+            .filter(|(_, &alive)| alive)
+            .map(|(i, _)| i)
+            .collect::<Vec<_>>();
+
+        let mut visited = vec![false; self.n * self.n];
+
+        queue.iter().for_each(|&i| visited[i] = true);
+
+        while let Some(index) = queue.pop() {
+            let row = index / self.n;
+            let col = index % self.n;
+
             let live_neighbors = self.count_live_neighbors(index);
 
-            // Any live cell with fewer than two live neighbors dies
-            // as if by underpopulation.
-            if live_neighbors < 2 {
-                next_cells[index] = false;
-            }
-            // Any live cell with two or three live neighbors lives
-            // on to the next generation.
-            else if live_neighbors == 2 || live_neighbors == 3 {
-                next_cells[index] = true;
-            }
-            // Any live cell with more than three live neighbors dies
-            // as if by overpopulation.
-            else {
-                next_cells[index] = false;
-            }
+            next_cells[index] = match (self.cells[index], live_neighbors) {
+                (true, 0..=1) => false, // Any live cell with fewer than two live neighbors dies as if by underpopulation.
+                (true, 2..=3) => true, // Any live cell with two or three live neighbors lives on to the next generation.
+                (true, _) => false, // Any live cell with more than three live neighbors dies as if by overpopulation.
+                (false, 3) => true, // Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
+                _ => self.cells[index], // Otherwise, the cell remains unchanged.
+            };
 
+            // Push unvisited neighbors to the queue
+            for i in row.saturating_sub(1)..=row.saturating_add(1) {
+                for j in col.saturating_sub(1)..=col.saturating_add(1) {
+                    let p = i * self.n + j;
+
+                    // Skip the center cell and cells outside the grid
+                    if (i == row && j == col) || p >= self.cells.len() || visited[p] {
+                        continue;
+                    }
+
+                    // Push the cell to the queue if it is alive
+                    if self.cells[p] {
+                        queue.push(p);
+                        visited[p] = true;
+                    }
+                }
+            }
         }
 
         self.cells = next_cells;
@@ -119,10 +125,10 @@ impl Slice {
 
         count
     }
-  
+
     pub fn to_hex_string(&self) -> String {
         let mut s = String::new();
-    
+
         //get 4 bits at a time
         for i in 0..self.cells.len() / 4 {
             let mut val = 0;
@@ -134,7 +140,7 @@ impl Slice {
             if i % 4 == 3 {
                 s.push(' ');
             }
-        }    
+        }
 
         s
     }
@@ -157,7 +163,6 @@ impl fmt::Display for Slice {
         Ok(())
     }
 }
-
 
 // struct MemoizedSlice {
 //     slice: Slice,

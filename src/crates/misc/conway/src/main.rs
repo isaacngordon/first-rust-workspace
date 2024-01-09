@@ -1,33 +1,47 @@
-mod game_of_life;
-// use std::thread;
-// use std::time::Duration;
+use conway::game_of_life;
+
+fn print_result(name: &str, elapsed: std::time::Duration, hex_string: &str) {
+    println!("Time elapsed for {}: {}s", name, elapsed.as_secs_f64());
+    println!("Hex string: {}", hex_string);
+}
 
 fn main() {
     const N : usize = 4;
-    // const max_fps : f64 = 60.0;
-
     let mut game = game_of_life::Slice::new(N);
     game.randomize();
-    println!("{}", game);
 
-    let start = std::time::Instant::now();
-    let mut last_frame_time = std::time::Instant::now();
-    
-    for i in 0..10000 {
-        game.next_generation_naive();
+    let mut game_naive = game.clone();
+    let mut game_optimized = game.clone();
 
-        // Clear the console
-        print!("\x1B[2J\x1B[1;1H");
+    // println!("Initial Game: {}", game.to_hex_string());
+    // println!("Initial Game Naive: {}", game_naive.to_hex_string());
+    // println!("Initial Game Naive Optimized: {}", game_optimized.to_hex_string());
 
-        let fps = 1.0 / last_frame_time.elapsed().as_secs_f64();
-        println!("\n+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=\n\t ==> Step {}   FPS: {}\n\n", i, fps);
-        println!("{}", game.to_hex_string());
-        last_frame_time = std::time::Instant::now();
+    println!("Naive Start: {}\n{}", game_naive.to_hex_string(), game_naive);
+    println!("Optimized Start: {}\n{}", game_optimized.to_hex_string(), game_optimized);
 
-        // let sleep_time = Duration::from_secs_f64(1.0 / max_fps - last_frame_time.elapsed().as_secs_f64());
-        // thread::sleep(sleep_time);
+    for i in 0..10 {
+        println!("Frame: {} ", i);
+        game_naive.next_generation_naive();
+        println!("Naive: {}\n{}", game_naive.to_hex_string(), game_naive);
+        game_optimized.next_generation_naive_optimized();
+        println!("Optimized: {}\n{}", game_optimized.to_hex_string(), game_optimized);
     }
-    
-    let elapsed = start.elapsed();
-    println!("+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=\nElapsed: {}s", elapsed.as_secs_f64());
+
+    // let start_naive = std::time::Instant::now();
+    // for _ in 0..10000 {
+    //     game_naive.next_generation_naive();
+    //     // println!("Naive: {}", zgame_naive);
+    // }
+    // let elapsed_naive = start_naive.elapsed();
+
+    // let start_optimized = std::time::Instant::now();
+    // for _ in 0..10000 {
+    //     game_optimized.next_generation_naive_optimized();
+    //     // println!("Optimized: {}", game_optimized);
+    // }
+    // let elapsed_optimized = start_optimized.elapsed();
+
+    // print_result("Naive", elapsed_naive, &game_naive.to_hex_string());
+    // print_result("Naive Optimized", elapsed_optimized, &game_optimized.to_hex_string());
 }
