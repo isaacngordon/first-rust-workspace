@@ -1,6 +1,12 @@
 pub mod game_of_life;
 
-// TEST 1 on 13x13 grid for 16 steps
+
+
+#[cfg(test)]
+mod tests {
+    use super::game_of_life::*;
+
+    // TEST 1 on 13x13 grid for 16 steps
 //  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 0 1 0 0 0 0 0 0
 //  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 1 0 1 0 0 0 0 0
 //  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 1 0 1 0 0 0 0 0
@@ -220,12 +226,6 @@ const TEST_2_END: [[bool; 15]; 15] = [
 
 const TEST_2_STEPS: i32 = 5;
 
-#[cfg(test)]
-mod tests {
-    use crate::{TEST_1_END, TEST_1_START, TEST_1_STEPS, TEST_2_END, TEST_2_START, TEST_2_STEPS};
-
-    use super::game_of_life::*;
-
     fn test_game_of_life(
         n: usize,
         start: Vec<Vec<bool>>,
@@ -337,4 +337,6 @@ mod tests {
             Slice::next_generation_naive_optimized,
         );
     }
+
+
 }
