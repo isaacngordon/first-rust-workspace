@@ -101,7 +101,7 @@ const TEST_1_END: [[bool; 13]; 13] = [
 
 const TEST_1_STEPS: i32 = 16;
 
-// TEST 2 on a 16x16 grid for 5 steps (a spaceship)
+// TEST 2 on a 15x15 grid for 5 steps (a spaceship)
 // should translate up 1 in 5 steps (spaceship 44P5H2V0; 2c/5 orthogonal, p5)
 //
 // 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0
