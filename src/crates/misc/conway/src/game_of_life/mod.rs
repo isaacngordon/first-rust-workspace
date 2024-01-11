@@ -59,60 +59,44 @@ impl Slice {
 
     pub fn next_generation_naive_optimized(&mut self) {
         let mut next_cells = vec![false; self.n * self.n];
-
-        let mut queue = self
-            .cells
-            .iter()
-            .enumerate()
-            .filter(|(_, &alive)| alive)
-            .map(|(i, _)| i)
-            .collect::<Vec<_>>();
-
+        let mut queue = Vec::new();
         let mut visited = vec![false; self.n * self.n];
-
-        queue.iter().for_each(|&i| visited[i] = true);
-
-        while let Some(index) = queue.pop() {
-            let row = index / self.n;
-            let col = index % self.n;
-
-            let live_neighbors = self.count_live_neighbors(index);
-
-            next_cells[index] = match (self.cells[index], live_neighbors) {
-                (true, 0..=1) => false, // Any live cell with fewer than two live neighbors dies as if by underpopulation.
-                (true, 2..=3) => true, // Any live cell with two or three live neighbors lives on to the next generation.
-                (true, _) => false, // Any live cell with more than three live neighbors dies as if by overpopulation.
-                (false, 3) => true, // Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
-                (false, _) => self.cells[index], // Otherwise, the cell remains unchanged.
-            };
-
-            // Push unvisited neighbors to the queue
-            for i in row.saturating_sub(1)..=row.saturating_add(1) {
-                for j in col.saturating_sub(1)..=col.saturating_add(1) {
-                    let p = i * self.n + j;
-
-                    // Skip the center cell and cells outside the grid
-                    if (i == row && j == col)  || visited[p]  {
-                        continue;
-                    }
-
-                    // skip cells outside the grid
-                    if i >= self.n || j >= self.n || p >= self.cells.len() {
-                        continue;
-                    }
-
-                    // Push the cell to the queue if it is alive
-                    if self.cells[p] && !visited[p] {
-                        queue.push(p);
-                        visited[p] = true;
+    
+        // Initialize queue with alive cells and their neighbors
+        for i in 0..self.cells.len() {
+            if self.cells[i] {
+                queue.push(i);
+                visited[i] = true;
+    
+                let row = i / self.n;
+                let col = i % self.n;
+    
+                for r in row.saturating_sub(1)..=row.saturating_add(1) {
+                    for c in col.saturating_sub(1)..=col.saturating_add(1) {
+                        let index = r * self.n + c;
+                        if index < self.cells.len() && !visited[index] {
+                            queue.push(index);
+                            visited[index] = true;
+                        }
                     }
                 }
             }
         }
-
+    
+        // Process each cell in the queue
+        for &index in &queue {
+            let live_neighbors = self.count_live_neighbors(index);
+            next_cells[index] = match (self.cells[index], live_neighbors) {
+                (true, 0..=1) | (true, 4..=usize::MAX) => false,
+                (true, 2..=3) => true,
+                (false, 3) => true,
+                _ => false,
+            };
+        }
+    
         self.cells = next_cells;
     }
-
+    
     fn count_live_neighbors(&self, index: usize) -> usize {
         let mut count = 0;
 
