@@ -46,11 +46,10 @@ impl Slice {
                 next_cells[p] = match (self.cells[p], live_neighbors) {
                     (true, 0..=1) => false, // Any live cell with fewer than two live neighbors dies as if by underpopulation.
                     (true, 2..=3) => true, // Any live cell with two or three live neighbors lives on to the next generation.
-                    (true, _) => false,    // Any live cell with more than three live neighbors dies as if by overpopulation.
-                    (false, 3) => true,    // Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
-                    (false, _) => self.cells[p],    // Otherwise, the cell remains unchanged.
+                    (true, _) => false, // Any live cell with more than three live neighbors dies as if by overpopulation.
+                    (false, 3) => true, // Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
+                    (false, _) => self.cells[p], // Otherwise, the cell remains unchanged.
                 };
-                   
             }
         }
 
@@ -61,16 +60,16 @@ impl Slice {
         let mut next_cells = vec![false; self.n * self.n];
         let mut queue = Vec::new();
         let mut visited = vec![false; self.n * self.n];
-    
+
         // Initialize queue with alive cells and their neighbors
         for i in 0..self.cells.len() {
             if self.cells[i] {
                 queue.push(i);
                 visited[i] = true;
-    
+
                 let row = i / self.n;
                 let col = i % self.n;
-    
+
                 for r in row.saturating_sub(1)..=row.saturating_add(1) {
                     for c in col.saturating_sub(1)..=col.saturating_add(1) {
                         let index = r * self.n + c;
@@ -82,7 +81,7 @@ impl Slice {
                 }
             }
         }
-    
+
         // Process each cell in the queue
         for &index in &queue {
             let live_neighbors = self.count_live_neighbors(index);
@@ -93,10 +92,10 @@ impl Slice {
                 _ => false,
             };
         }
-    
+
         self.cells = next_cells;
     }
-    
+
     fn count_live_neighbors(&self, index: usize) -> usize {
         let mut count = 0;
 
@@ -114,7 +113,7 @@ impl Slice {
                 let p = i * self.n + j;
 
                 // Skip cells outside the grid
-                if p >= self.cells.len() || i >= self.n || j >= self.n{
+                if p >= self.cells.len() || i >= self.n || j >= self.n {
                     continue;
                 }
 

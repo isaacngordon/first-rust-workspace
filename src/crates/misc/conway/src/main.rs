@@ -6,7 +6,7 @@ fn print_result(name: &str, elapsed: std::time::Duration, hex_string: &str) {
 }
 
 fn main() {
-    const N : usize = 4;
+    const N: usize = 4;
     let mut game = game_of_life::Slice::new(N);
     game.randomize();
 
@@ -17,15 +17,27 @@ fn main() {
     // println!("Initial Game Naive: {}", game_naive.to_hex_string());
     // println!("Initial Game Naive Optimized: {}", game_optimized.to_hex_string());
 
-    println!("Naive Start: {}\n{}", game_naive.to_hex_string(), game_naive);
-    println!("Optimized Start: {}\n{}", game_optimized.to_hex_string(), game_optimized);
+    println!(
+        "Naive Start: {}\n{}",
+        game_naive.to_hex_string(),
+        game_naive
+    );
+    println!(
+        "Optimized Start: {}\n{}",
+        game_optimized.to_hex_string(),
+        game_optimized
+    );
 
     for i in 0..10 {
         println!("Frame: {} ", i);
         game_naive.next_generation_naive();
         println!("Naive: {}\n{}", game_naive.to_hex_string(), game_naive);
         game_optimized.next_generation_naive_optimized();
-        println!("Optimized: {}\n{}", game_optimized.to_hex_string(), game_optimized);
+        println!(
+            "Optimized: {}\n{}",
+            game_optimized.to_hex_string(),
+            game_optimized
+        );
     }
 
     // let start_naive = std::time::Instant::now();
