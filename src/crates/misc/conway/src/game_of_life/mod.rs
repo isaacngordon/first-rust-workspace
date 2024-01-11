@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Slice {
     n: usize,
     cells: Vec<bool>,
@@ -15,6 +15,18 @@ impl Slice {
             cells,
             // orphan: false,
         }
+    }
+
+    pub fn set_cells(&mut self, cells: Vec<bool>) {
+        if cells.len() != (self.n * self.n) {
+            panic!("Invalid cell count");
+        }
+        self.cells = cells;
+    }
+
+    pub fn set_cell(&mut self, row: usize, col: usize, value: bool) {
+        let p = row * self.n + col;
+        self.cells[p] = value;
     }
 
     pub fn randomize(&mut self) {
@@ -36,7 +48,7 @@ impl Slice {
                     (true, 2..=3) => true, // Any live cell with two or three live neighbors lives on to the next generation.
                     (true, _) => false,    // Any live cell with more than three live neighbors dies as if by overpopulation.
                     (false, 3) => true,    // Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
-                    _ => self.cells[p],    // Otherwise, the cell remains unchanged.
+                    (false, _) => self.cells[p],    // Otherwise, the cell remains unchanged.
                 };
                    
             }
@@ -71,7 +83,7 @@ impl Slice {
                 (true, 2..=3) => true, // Any live cell with two or three live neighbors lives on to the next generation.
                 (true, _) => false, // Any live cell with more than three live neighbors dies as if by overpopulation.
                 (false, 3) => true, // Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
-                _ => self.cells[index], // Otherwise, the cell remains unchanged.
+                (false, _) => self.cells[index], // Otherwise, the cell remains unchanged.
             };
 
             // Push unvisited neighbors to the queue
@@ -80,12 +92,17 @@ impl Slice {
                     let p = i * self.n + j;
 
                     // Skip the center cell and cells outside the grid
-                    if (i == row && j == col) || p >= self.cells.len() || visited[p] {
+                    if (i == row && j == col)  || visited[p]  {
+                        continue;
+                    }
+
+                    // skip cells outside the grid
+                    if i >= self.n || j >= self.n || p >= self.cells.len() {
                         continue;
                     }
 
                     // Push the cell to the queue if it is alive
-                    if self.cells[p] {
+                    if self.cells[p] && !visited[p] {
                         queue.push(p);
                         visited[p] = true;
                     }
@@ -113,7 +130,7 @@ impl Slice {
                 let p = i * self.n + j;
 
                 // Skip cells outside the grid
-                if p >= self.cells.len() {
+                if p >= self.cells.len() || i >= self.n || j >= self.n{
                     continue;
                 }
 
@@ -161,6 +178,12 @@ impl fmt::Display for Slice {
         }
 
         Ok(())
+    }
+}
+
+impl PartialEq for Slice {
+    fn eq(&self, other: &Self) -> bool {
+        self.cells == other.cells
     }
 }
 
