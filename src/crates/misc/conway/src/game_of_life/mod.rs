@@ -170,35 +170,3 @@ impl PartialEq for Slice {
     }
 }
 
-// struct MemoizedSlice {
-//     slice: Slice,
-//     memo: HashMap<(usize, usize), Slice>,
-// }
-
-// impl MemoizedSlice {
-//     pub fn new(width: usize, height: usize) -> MemoizedSlice {
-//         let slice = Slice::new(width, height);
-//         let memo = HashMap::new();
-//         MemoizedSlice { slice, memo }
-//     }
-
-//     pub fn next_generation(&mut self) {
-//         let sub_slice_width = self.slice.width.saturating_sub(2);
-//         let sub_slice_height = self.slice.height.saturating_sub(2);
-
-//         for row in 0..sub_slice_height {
-//             for col in 0..sub_slice_width {
-//                 let sub_slice = self.slice.get_sub_slice(row, col);
-//                 let transition = self.memo.entry((row, col)).or_insert_with(|| {
-//                     let mut next_slice = sub_slice.clone();
-//                     next_slice.next_generation();
-//                     next_slice
-//                 });
-
-//                 self.slice.set_sub_slice(row, col, transition.clone());
-//             }
-//         }
-
-//         self.slice.next_generation();
-//     }
-// }

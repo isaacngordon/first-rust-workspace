@@ -1,230 +1,245 @@
 pub mod game_of_life;
 
-
-
 #[cfg(test)]
 mod tests {
     use super::game_of_life::*;
 
     // TEST 1 on 13x13 grid for 16 steps
-//  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 0 1 0 0 0 0 0 0
-//  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 1 0 1 0 0 0 0 0
-//  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 1 0 1 0 0 0 0 0
-//  0 0 0 0 0 0 0 0 0 0 0 0 0   --> 16 steps --> 0 0 0 0 0 0 1 0 0 0 0 0 0
-//  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 0 0 0 0 0 0 0 0
-//  0 0 0 0 0 0 1 0 0 0 0 0 0                    0 1 1 0 0 0 0 0 0 0 1 1 0
-//  0 0 0 0 0 1 1 1 0 0 0 0 0                    1 0 0 1 0 0 0 0 0 1 0 0 1
-//  0 0 0 0 0 1 0 1 0 0 0 0 0                    0 1 1 0 0 0 0 0 0 0 1 1 0
-//  0 0 0 0 0 0 1 0 0 0 0 0 0                    0 0 0 0 0 0 0 0 0 0 0 0 0
-//  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 0 1 0 0 0 0 0 0
-//  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 1 0 1 0 0 0 0 0
-//  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 1 0 1 0 0 0 0 0
-//  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 0 1 0 0 0 0 0 0
+    //  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 0 1 0 0 0 0 0 0
+    //  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 1 0 1 0 0 0 0 0
+    //  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 1 0 1 0 0 0 0 0
+    //  0 0 0 0 0 0 0 0 0 0 0 0 0   --> 16 steps --> 0 0 0 0 0 0 1 0 0 0 0 0 0
+    //  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 0 0 0 0 0 0 0 0
+    //  0 0 0 0 0 0 1 0 0 0 0 0 0                    0 1 1 0 0 0 0 0 0 0 1 1 0
+    //  0 0 0 0 0 1 1 1 0 0 0 0 0                    1 0 0 1 0 0 0 0 0 1 0 0 1
+    //  0 0 0 0 0 1 0 1 0 0 0 0 0                    0 1 1 0 0 0 0 0 0 0 1 1 0
+    //  0 0 0 0 0 0 1 0 0 0 0 0 0                    0 0 0 0 0 0 0 0 0 0 0 0 0
+    //  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 0 1 0 0 0 0 0 0
+    //  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 1 0 1 0 0 0 0 0
+    //  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 1 0 1 0 0 0 0 0
+    //  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 0 1 0 0 0 0 0 0
 
-const TEST_1_START: [[bool; 13]; 13] = [
-    [
-        false, false, false, false, false, false, false, false, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, false, false, false, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, false, false, false, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, false, false, false, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, false, false, false, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, false, true, false, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, true, true, true, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, true, false, true, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, false, true, false, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, false, false, false, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, false, false, false, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, false, false, false, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, false, false, false, false, false, false, false, false,
-    ],
-];
+    const TEST_1_START: [[bool; 13]; 13] = [
+        [
+            false, false, false, false, false, false, false, false, false, false, false, false,
+            false,
+        ],
+        [
+            false, false, false, false, false, false, false, false, false, false, false, false,
+            false,
+        ],
+        [
+            false, false, false, false, false, false, false, false, false, false, false, false,
+            false,
+        ],
+        [
+            false, false, false, false, false, false, false, false, false, false, false, false,
+            false,
+        ],
+        [
+            false, false, false, false, false, false, false, false, false, false, false, false,
+            false,
+        ],
+        [
+            false, false, false, false, false, false, true, false, false, false, false, false,
+            false,
+        ],
+        [
+            false, false, false, false, false, true, true, true, false, false, false, false, false,
+        ],
+        [
+            false, false, false, false, false, true, false, true, false, false, false, false, false,
+        ],
+        [
+            false, false, false, false, false, false, true, false, false, false, false, false,
+            false,
+        ],
+        [
+            false, false, false, false, false, false, false, false, false, false, false, false,
+            false,
+        ],
+        [
+            false, false, false, false, false, false, false, false, false, false, false, false,
+            false,
+        ],
+        [
+            false, false, false, false, false, false, false, false, false, false, false, false,
+            false,
+        ],
+        [
+            false, false, false, false, false, false, false, false, false, false, false, false,
+            false,
+        ],
+    ];
 
-const TEST_1_END: [[bool; 13]; 13] = [
-    [
-        false, false, false, false, false, false, true, false, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, true, false, true, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, true, false, true, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, false, true, false, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, false, false, false, false, false, false, false, false,
-    ],
-    [
-        false, true, true, false, false, false, false, false, false, false, true, true, false,
-    ],
-    [
-        true, false, false, true, false, false, false, false, false, true, false, false, true,
-    ],
-    [
-        false, true, true, false, false, false, false, false, false, false, true, true, false,
-    ],
-    [
-        false, false, false, false, false, false, false, false, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, false, true, false, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, true, false, true, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, true, false, true, false, false, false, false, false,
-    ],
-    [
-        false, false, false, false, false, false, true, false, false, false, false, false, false,
-    ],
-];
+    const TEST_1_END: [[bool; 13]; 13] = [
+        [
+            false, false, false, false, false, false, true, false, false, false, false, false,
+            false,
+        ],
+        [
+            false, false, false, false, false, true, false, true, false, false, false, false, false,
+        ],
+        [
+            false, false, false, false, false, true, false, true, false, false, false, false, false,
+        ],
+        [
+            false, false, false, false, false, false, true, false, false, false, false, false,
+            false,
+        ],
+        [
+            false, false, false, false, false, false, false, false, false, false, false, false,
+            false,
+        ],
+        [
+            false, true, true, false, false, false, false, false, false, false, true, true, false,
+        ],
+        [
+            true, false, false, true, false, false, false, false, false, true, false, false, true,
+        ],
+        [
+            false, true, true, false, false, false, false, false, false, false, true, true, false,
+        ],
+        [
+            false, false, false, false, false, false, false, false, false, false, false, false,
+            false,
+        ],
+        [
+            false, false, false, false, false, false, true, false, false, false, false, false,
+            false,
+        ],
+        [
+            false, false, false, false, false, true, false, true, false, false, false, false, false,
+        ],
+        [
+            false, false, false, false, false, true, false, true, false, false, false, false, false,
+        ],
+        [
+            false, false, false, false, false, false, true, false, false, false, false, false,
+            false,
+        ],
+    ];
 
-const TEST_1_STEPS: i32 = 16;
+    const TEST_1_STEPS: i32 = 16;
 
-// TEST 2 on a 15x15 grid for 5 steps (a spaceship)
-// should translate up 1 in 5 steps (spaceship 44P5H2V0; 2c/5 orthogonal, p5)
-//
-// 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0
-// 0 0 0 1 1 1 0 0 0 1 1 1 0 0 0
-// 0 0 1 0 0 1 0 0 0 1 0 0 1 0 0
-// 0 1 1 1 0 0 0 0 0 0 0 1 1 1 0
-// 0 0 1 0 1 0 0 0 0 0 1 0 1 0 0
-// 0 0 0 0 1 1 0 0 0 1 1 0 0 0 0   should translate up 1 in 5 steps (spaceship 44P5H2V0; 2c/5 orthogonal, p5)
-// 1 0 0 0 0 1 0 0 0 1 0 0 0 0 1
-// 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0
-// 1 1 0 0 0 1 0 0 0 1 0 0 0 1 1
-// 0 0 1 0 0 1 0 0 0 1 0 0 1 0 0
-// 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0
+    // TEST 2 on a 15x15 grid for 5 steps (a spaceship)
+    // should translate up 1 in 5 steps (spaceship 44P5H2V0; 2c/5 orthogonal, p5)
+    //
+    // 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0
+    // 0 0 0 1 1 1 0 0 0 1 1 1 0 0 0
+    // 0 0 1 0 0 1 0 0 0 1 0 0 1 0 0
+    // 0 1 1 1 0 0 0 0 0 0 0 1 1 1 0
+    // 0 0 1 0 1 0 0 0 0 0 1 0 1 0 0
+    // 0 0 0 0 1 1 0 0 0 1 1 0 0 0 0   should translate up 1 in 5 steps (spaceship 44P5H2V0; 2c/5 orthogonal, p5)
+    // 1 0 0 0 0 1 0 0 0 1 0 0 0 0 1
+    // 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0
+    // 1 1 0 0 0 1 0 0 0 1 0 0 0 1 1
+    // 0 0 1 0 0 1 0 0 0 1 0 0 1 0 0
+    // 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0
 
-const TEST_2_START: [[bool; 15]; 15] = [
-    [false; 15],
-    [false; 15],
-    [false; 15],
-    [false; 15],
-    [
-        false, false, false, false, true, false, false, false, false, false, true, false, false,
-        false, false,
-    ],
-    [
-        false, false, false, true, true, true, false, false, false, true, true, true, false, false,
-        false,
-    ],
-    [
-        false, false, true, false, false, true, false, false, false, true, false, false, true,
-        false, false,
-    ],
-    [
-        false, true, true, true, false, false, false, false, false, false, false, true, true, true,
-        false,
-    ],
-    [
-        false, false, true, false, true, false, false, false, false, false, true, false, true,
-        false, false,
-    ],
-    [
-        false, false, false, false, true, true, false, false, false, true, true, false, false,
-        false, false,
-    ],
-    [
-        true, false, false, false, false, true, false, false, false, true, false, false, false,
-        false, true,
-    ],
-    [
-        false, false, false, false, false, true, false, false, false, true, false, false, false,
-        false, false,
-    ],
-    [
-        true, true, false, false, false, true, false, false, false, true, false, false, false,
-        true, true,
-    ],
-    [
-        false, false, true, false, false, true, false, false, false, true, false, false, true,
-        false, false,
-    ],
-    [
-        false, false, false, false, true, false, false, false, false, false, true, false, false,
-        false, false,
-    ],
-];
+    const TEST_2_START: [[bool; 15]; 15] = [
+        [false; 15],
+        [false; 15],
+        [false; 15],
+        [false; 15],
+        [
+            false, false, false, false, true, false, false, false, false, false, true, false,
+            false, false, false,
+        ],
+        [
+            false, false, false, true, true, true, false, false, false, true, true, true, false,
+            false, false,
+        ],
+        [
+            false, false, true, false, false, true, false, false, false, true, false, false, true,
+            false, false,
+        ],
+        [
+            false, true, true, true, false, false, false, false, false, false, false, true, true,
+            true, false,
+        ],
+        [
+            false, false, true, false, true, false, false, false, false, false, true, false, true,
+            false, false,
+        ],
+        [
+            false, false, false, false, true, true, false, false, false, true, true, false, false,
+            false, false,
+        ],
+        [
+            true, false, false, false, false, true, false, false, false, true, false, false, false,
+            false, true,
+        ],
+        [
+            false, false, false, false, false, true, false, false, false, true, false, false,
+            false, false, false,
+        ],
+        [
+            true, true, false, false, false, true, false, false, false, true, false, false, false,
+            true, true,
+        ],
+        [
+            false, false, true, false, false, true, false, false, false, true, false, false, true,
+            false, false,
+        ],
+        [
+            false, false, false, false, true, false, false, false, false, false, true, false,
+            false, false, false,
+        ],
+    ];
 
-const TEST_2_END: [[bool; 15]; 15] = [
-    [false; 15],
-    [false; 15],
-    [
-        false, false, false, false, true, false, false, false, false, false, true, false, false,
-        false, false,
-    ],
-    [
-        false, false, false, true, true, true, false, false, false, true, true, true, false, false,
-        false,
-    ],
-    [
-        false, false, true, false, false, true, false, false, false, true, false, false, true,
-        false, false,
-    ],
-    [
-        false, true, true, true, false, false, false, false, false, false, false, true, true, true,
-        false,
-    ],
-    [
-        false, false, true, false, true, false, false, false, false, false, true, false, true,
-        false, false,
-    ],
-    [
-        false, false, false, false, true, true, false, false, false, true, true, false, false,
-        false, false,
-    ],
-    [
-        true, false, false, false, false, true, false, false, false, true, false, false, false,
-        false, true,
-    ],
-    [
-        false, false, false, false, false, true, false, false, false, true, false, false, false,
-        false, false,
-    ],
-    [
-        true, true, false, false, false, true, false, false, false, true, false, false, false,
-        true, true,
-    ],
-    [
-        false, false, true, false, false, true, false, false, false, true, false, false, true,
-        false, false,
-    ],
-    [
-        false, false, false, false, true, false, false, false, false, false, true, false, false,
-        false, false,
-    ],
-    [false; 15],
-    [false; 15],
-];
+    const TEST_2_END: [[bool; 15]; 15] = [
+        [false; 15],
+        [false; 15],
+        [
+            false, false, false, false, true, false, false, false, false, false, true, false,
+            false, false, false,
+        ],
+        [
+            false, false, false, true, true, true, false, false, false, true, true, true, false,
+            false, false,
+        ],
+        [
+            false, false, true, false, false, true, false, false, false, true, false, false, true,
+            false, false,
+        ],
+        [
+            false, true, true, true, false, false, false, false, false, false, false, true, true,
+            true, false,
+        ],
+        [
+            false, false, true, false, true, false, false, false, false, false, true, false, true,
+            false, false,
+        ],
+        [
+            false, false, false, false, true, true, false, false, false, true, true, false, false,
+            false, false,
+        ],
+        [
+            true, false, false, false, false, true, false, false, false, true, false, false, false,
+            false, true,
+        ],
+        [
+            false, false, false, false, false, true, false, false, false, true, false, false,
+            false, false, false,
+        ],
+        [
+            true, true, false, false, false, true, false, false, false, true, false, false, false,
+            true, true,
+        ],
+        [
+            false, false, true, false, false, true, false, false, false, true, false, false, true,
+            false, false,
+        ],
+        [
+            false, false, false, false, true, false, false, false, false, false, true, false,
+            false, false, false,
+        ],
+        [false; 15],
+        [false; 15],
+    ];
 
-const TEST_2_STEPS: i32 = 5;
+    const TEST_2_STEPS: i32 = 5;
 
     fn test_game_of_life(
         n: usize,
@@ -281,10 +296,10 @@ const TEST_2_STEPS: i32 = 5;
         for _ in 0..steps {
             algo(&mut game_actual);
         }
-        
+
         println!("Final Game Expected:\n===========================================\n{}\n{}\n================================================", 
         game_expected, game_expected.to_hex_string());
-        
+
         println!("Final Game Actual:\n===========================================\n{}\n{}\n================================================", 
         game_actual, game_actual.to_hex_string());
         assert_eq!(
@@ -337,6 +352,4 @@ const TEST_2_STEPS: i32 = 5;
             Slice::next_generation_naive_optimized,
         );
     }
-
-
 }
