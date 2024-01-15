@@ -56,7 +56,7 @@ fi
 if ! command -v python >/dev/null 2>&1; then
     echo "Python is not installed. Attempting to install Python..."
     curl https://pyenv.run | bash || error_exit "Failed to install Python. Aborting."
-    pyenv install 3.21.1 || error_exit "Failed to install Python. Aborting."
+    pyenv install 3.12.1 || error_exit "Failed to install Python. Aborting."
 fi
 
 # make sure we have venv 
