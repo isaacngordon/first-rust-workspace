@@ -36,6 +36,36 @@ install_with_cargo()
 # Check for and install fundamental tools/commands
 # --------------------------------------------------
 
+# If on mac make sure homebrew is installed
+if [[ "${PLATFORM}" == "Darwin"* ]]; then
+    if ! command -v brew >/dev/null 2>&1; then
+        echo "Homebrew is not installed. Attempting to install Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || error_exit "Failed to install Homebrew. Aborting."
+    fi
+fi
+
+# install nvm, most recent version of node, and npm
+if ! command -v nvm >/dev/null 2>&1; then
+    echo "Nvm is not installed. Attempting to install Nvm..."
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash || error_exit "Failed to install Nvm. Aborting."
+    nvm install node || error_exit "Failed to install Node. Aborting."
+fi
+
+
+#install most recent python version
+if ! command -v python >/dev/null 2>&1; then
+    echo "Python is not installed. Attempting to install Python..."
+    curl https://pyenv.run | bash || error_exit "Failed to install Python. Aborting."
+    pyenv install 3.21.1 || error_exit "Failed to install Python. Aborting."
+fi
+
+# make sure we have venv 
+if ! command -v venv >/dev/null 2>&1; then
+    echo "Venv is not installed. Attempting to install Venv..."
+    pip install virtualenv || error_exit "Failed to install Venv. Aborting."
+fi
+
+
 # Check if vim is installed, if not, install it
 if ! command -v vim >/dev/null 2>&1; then
     echo "Vim is not installed. Attempting to install Vim..."
@@ -101,7 +131,6 @@ if ! command -v cargo-info >/dev/null 2>&1; then
     echo "Cargo-info is not installed. Attempting to install Cargo-info..."
     install_with_cargo cargo-info
 fi
-
 
 # --------------------------------------------------
 # Aliasable cli programs installed via cargo
