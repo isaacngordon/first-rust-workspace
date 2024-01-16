@@ -1,10 +1,6 @@
 use conway::game_of_life;
 mod ui;
-use bevy::{prelude::*, window::PresentMode};
-
-struct GameOfLife {
-    slice: game_of_life::Slice,
-}
+use bevy::{prelude::*, transform};
 
 const DEFAULT_WINDOW_WIDTH: f32 = 500.0;
 const DEFAULT_WINDOW_HEIGHT: f32 = 500.0;
@@ -22,66 +18,114 @@ fn main() {
             }),
             ..default()
         }))
+        .add_plugins(game_of_life::GameOfLifePlugin)
         .add_plugins(ui::MainMenuPlugin)
-        // .insert_resource(GameOfLife {
-        //     slice: game_of_life::Slice::new(10), // Set the size of your grid
-        // })
-        // .add_startup_system(setup.system())
-        // .add_system(update_game_of_life.system())
-        // .add_system(render_game_of_life.system())
+        .add_plugins(CameraPlugin)
         .run();
 }
 
-// fn setup(mut commands: Commands) {
-//     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
-// }
+// Camera 
+const CAMERA_MOVE_SPEED: f32 = 15.0;
+const CAMERA_ZOOM_SPEED: f32 = 1.0;
 
-// impl Resource for GameOfLife {}
+#[derive(Component)]
+struct MainCamera;
 
-// fn update_game_of_life(time: Res<Time>, mut game_of_life: ResMut<GameOfLife>) {
-//     // Update the game state every second or so
-//     if time.seconds_since_startup() % 1.0 < 0.05 {
-//         game_of_life.slice.next_generation_naive(); // Or use your optimized version
-//     }
-// }
+#[derive(Component)]
+struct CameraMovement {
+    plane_speed: Vec3,
+    zoom_speed: f32,
+}
 
-// struct Cell;
+struct CameraPlugin;
 
-// fn render_game_of_life(
-//     mut commands: Commands,
-//     game_of_life: Res<GameOfLife>,
-//     mut materials: ResMut<Assets<ColorMaterial>>,
-//     mut query: Query<(Entity, &Cell)>,
-// ) {
-//     // First, let's clear the existing cells
-//     for (entity, _) in query.iter() {
-//         commands.entity(entity).despawn();
-//     }
+impl Plugin for CameraPlugin {
+    fn build(&self, app: &mut App) {
+        app
+            .add_systems(Startup, camera_setup)
+            .add_systems(Update, (camera_movement_system, camera_zoom_system));
+    }
+}
 
-//     // Now, let's draw the new state
-//     for (i, &alive) in game_of_life.slice.cells.iter().enumerate() {
-//         let x = (i % game_of_life.slice.n) as f32;
-//         let y = (i / game_of_life.slice.n) as f32;
+fn camera_setup(mut commands: Commands) {
+    commands
+        .spawn(Camera2dBundle::default())
+        .insert(MainCamera)
+        .insert(CameraMovement {
+            plane_speed: Vec3::ZERO,
+            zoom_speed: 0.0,
+        }); 
+}
 
-//         let color = if alive {
-//             Color::rgb(0.0, 1.0, 0.0) // Green for alive
-//         } else {
-//             Color::rgb(0.1, 0.1, 0.1) // Dark for dead
-//         };
+fn camera_movement_system(
+    mut camera: Query<(&mut Transform, &mut CameraMovement), With<MainCamera>>,
+    keyboard_input: Res<Input<KeyCode>>,
+){
+    
+    let mut move_direction = Vec3::ZERO;
+    if keyboard_input.pressed(KeyCode::W) {
+        move_direction.y = CAMERA_MOVE_SPEED;
+    }
+    if keyboard_input.pressed(KeyCode::A) {
+        move_direction.x = -CAMERA_MOVE_SPEED;
+    }
+    if keyboard_input.pressed(KeyCode::S) {
+        move_direction.y = -CAMERA_MOVE_SPEED;
+    }
+    if keyboard_input.pressed(KeyCode::D) {
+        move_direction.x = CAMERA_MOVE_SPEED;
+    }
 
-//         commands.spawn_bundle(SpriteBundle {
-//             material: materials.add(color.into()),
-//             transform: Transform::from_xyz(x * 10.0, y * 10.0, 0.0), // Adjust the multiplier for cell size
-//             sprite: Sprite::new(Vec2::new(10.0, 10.0)), // Cell size
-//             ..Default::default()
-//         }).insert(Cell);
-//     }
-// }
+    let move_direction = move_direction.normalize_or_zero();
+    let (mut transform, mut movement) = camera.iter_mut()
+        .next()
+        .expect("No transform found on camera MainCamera");
+
+    movement.plane_speed = (move_direction);
+
+    transform.translation += movement.plane_speed;
+
+    if keyboard_input.just_pressed(KeyCode::Space) {
+        movement.plane_speed = Vec3::ZERO;
+        transform.translation = Vec3::ZERO;
+    }
+}
+
+// untested
+fn camera_zoom_system(
+    mut camera: Query<(&mut Transform, &mut CameraMovement), With<MainCamera>>,
+    keyboard_input: Res<Input<KeyCode>>,
+){
+    let mut zoom_direction = 0.0;
+    if keyboard_input.pressed(KeyCode::Q) {
+        zoom_direction = CAMERA_ZOOM_SPEED;
+    }
+    if keyboard_input.pressed(KeyCode::E) {
+        zoom_direction = -CAMERA_ZOOM_SPEED;
+    }
+
+    let (mut transform, mut movement) = camera.iter_mut()
+        .next()
+        .expect("No transform found on camera MainCamera");
+
+    movement.zoom_speed = zoom_direction;
+
+    transform.scale += Vec3::splat(movement.zoom_speed);
+
+    if keyboard_input.just_pressed(KeyCode::Space) {
+        movement.zoom_speed = 0.0;
+        transform.scale = Vec3::ONE;
+    }
+}
 
 
 
 
+//
 // IGNORE BELOW THIS LINE
+// this is just a main test function for the game of life
+//
+//
 // fn print_result(name: &str, elapsed: std::time::Duration, hex_string: &str) {
 //     println!("Time elapsed for {}: {}s", name, elapsed.as_secs_f64());
 //     println!("Hex string: {}", hex_string);
