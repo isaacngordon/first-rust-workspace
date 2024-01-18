@@ -38,14 +38,54 @@ pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_event::<NextStepEvent>()
+        app.add_event::<NextStepEvent>()
             .add_event::<PreviousStepEvent>()
             .add_event::<RandomizeGameEvent>()
             .add_systems(Startup, setup)
             .add_systems(Update, button_system);
     }
 }
+
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    // commands.spawn(Camera2dBundle::default());
+    commands
+        .spawn(NodeBundle {
+            style: Style {
+                flex_direction: FlexDirection::ColumnReverse,
+                align_items: AlignItems::FlexEnd,
+                justify_content: JustifyContent::FlexEnd,
+                height: Val::Percent(100.0),
+                width: Val::Percent(100.0),
+                ..default()
+            },
+            ..default()
+        })
+        .with_children(|parent| {
+            // Set up the top bar...
+            parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        height: Val::Px(50.0),
+                        width: Val::Percent(100.0),
+                        flex_direction: FlexDirection::Row,
+                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::SpaceEvenly,
+                        ..default()
+                    },
+                    background_color: BUTTON_SECTION_BACKGROUND_COLOR.into(),
+                    ..default()
+                })
+                .with_children(|parent| {
+                    // "PREV" button
+                    spawn_button(parent, &asset_server, "PREV", ButtonAction::Prev);
+                    // "PLAY" button
+                    spawn_button(parent, &asset_server, "RANDOM", ButtonAction::Randomize);
+                    // "NEXT" button
+                    spawn_button(parent, &asset_server, "NEXT", ButtonAction::Next);
+                });
+        });
+}
+
 
 fn button_system(
     mut interaction_query: Query<
@@ -63,7 +103,8 @@ fn button_system(
     mut prev_writer: EventWriter<PreviousStepEvent>,
     mut random_writer: EventWriter<RandomizeGameEvent>,
 ) {
-    for (interaction, menu_btn, mut bg_color, mut border_color, children) in &mut interaction_query {
+    for (interaction, menu_btn, mut bg_color, mut border_color, children) in &mut interaction_query
+    {
         let mut text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
             Interaction::Pressed => {
@@ -102,48 +143,12 @@ fn button_system(
     }
 }
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    // commands.spawn(Camera2dBundle::default());
-    commands
-        .spawn(NodeBundle {
-            style: Style {
-                flex_direction: FlexDirection::ColumnReverse,
-                align_items: AlignItems::FlexEnd,
-                justify_content: JustifyContent::FlexEnd,
-                height: Val::Percent(100.0),
-                width: Val::Percent(100.0),
-                ..default()
-            },
-            background_color: CONTAINER_BACKGROUND_COLOR.into(),
-            ..default()
-        })
-        .with_children(|parent| {
-            // Set up the bottom bar...
-            parent
-                .spawn(NodeBundle {
-                    style: Style {
-                        height: Val::Px(50.0),
-                        width: Val::Percent(100.0),
-                        flex_direction: FlexDirection::Row,
-                        align_items: AlignItems::Center,
-                        justify_content: JustifyContent::SpaceEvenly,
-                        ..default()
-                    },
-                    background_color: BUTTON_SECTION_BACKGROUND_COLOR.into(),
-                    ..default()
-                })
-                .with_children(|parent| {
-                    // "PREV" button
-                    spawn_button(parent, &asset_server, "PREV", ButtonAction::Prev);
-                    // "PLAY" button
-                    spawn_button(parent, &asset_server, "RANDOM", ButtonAction::Randomize);
-                    // "NEXT" button
-                    spawn_button(parent, &asset_server, "NEXT", ButtonAction::Next);
-                });
-        });
-}
-
-fn spawn_button(parent: &mut ChildBuilder, asset_server: &Res<AssetServer>, text: &str, button_action: ButtonAction) {
+fn spawn_button(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+    text: &str,
+    button_action: ButtonAction,
+) {
     parent
         .spawn(build_button(asset_server, text))
         .with_children(|parent| {

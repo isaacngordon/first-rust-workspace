@@ -1,4 +1,9 @@
 pub mod game_of_life;
+mod camera;
+
+pub use camera::CameraPlugin;
+pub use camera::MainCamera;
+pub use camera::GlobalDefaults;
 
 #[cfg(test)]
 mod tests {

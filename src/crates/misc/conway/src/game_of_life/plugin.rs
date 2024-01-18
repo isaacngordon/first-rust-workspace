@@ -1,24 +1,84 @@
 use bevy::prelude::*;
 use crate::game_of_life::Slice;
 
+const SPRITE_SIZE: f32 = 252.0;
+const DEFAULT_SLICE_SIZE: usize = 4;
+
 pub struct GameOfLifePlugin;
 
 impl Plugin for GameOfLifePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup);
+        app
+            .insert_resource(GameOfLife::default())
+            .add_systems(Startup, setup);
     }
 }
 
-struct GameOfLife {
+#[derive(Component)]
+struct Cell {
+    alive: CellState,
+}
+
+enum CellState {
+    Alive,
+    Dead
+}
+
+#[derive(Resource)]
+struct CellTexture {
+    alive: Handle<Image>,
+    dead: Handle<Image>
+}
+
+#[derive(Default)]
+struct Continuous(bool);
+
+#[derive(Resource)]
+pub struct GameOfLife {
     slice: Slice,
 }
 
-
-fn setup(mut commands: Commands) {
-    
+impl Default for GameOfLife {
+    fn default() -> Self {
+        Self {
+            slice: Slice::new(DEFAULT_SLICE_SIZE),
+        }
+    }
 }
 
-impl Resource for GameOfLife {}
+fn setup(mut commands: Commands, mut game_of_life: Res<GameOfLife>, asset_server: Res<AssetServer>) {
+    for x in 0..game_of_life.slice.get_size() {
+        for y in 0..game_of_life.slice.get_size() {
+            let cell = game_of_life.slice.get(x, y);
+            commands
+                .spawn(SpriteBundle {
+                    sprite: Sprite {
+                        ..Default::default()
+                    },
+                    transform: Transform {
+                        translation: Vec3::new((x as f32) * SPRITE_SIZE, (y as f32) * SPRITE_SIZE, 0.0),
+                        scale : Vec3::ONE,
+                        ..Default::default()
+                    }, 
+                    texture: asset_server.load("sprites/dead_cell.png"),
+                    ..Default::default()
+                })
+                .insert(Cell {
+                    alive: if cell { CellState::Alive } else { CellState::Dead }
+                });
+        }
+    }
+    // commands.spawn(Camera2dBundle::default());
+    // commands.spawn(SpriteBundle{
+    //     texture: asset_server.load("sprites/dead_cell.png"),
+    //     ..default()
+    // });
+    commands.insert_resource(CellTexture {
+        alive: asset_server.load("sprites/alive_cell.png"),
+        dead: asset_server.load("sprites/dead_cell.png")
+    });
+}
+
 
 // fn update_game_of_life(time: Res<Time>, mut game_of_life: ResMut<GameOfLife>) {
 

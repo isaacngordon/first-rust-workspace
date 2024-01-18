@@ -18,6 +18,15 @@ impl Slice {
         }
     }
 
+    pub fn get(&self, row: usize, col: usize) -> bool {
+        let p = row * self.n + col;
+        self.cells[p].clone()
+    }
+
+    pub fn get_size(&self) -> usize {
+        self.n.clone()
+    }
+
     pub fn set_cells(&mut self, cells: Vec<bool>) {
         if cells.len() != (self.n * self.n) {
             panic!("Invalid cell count");

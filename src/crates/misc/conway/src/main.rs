@@ -1,14 +1,17 @@
-use conway::game_of_life;
+use conway::{game_of_life, GlobalDefaults, CameraPlugin};
 mod ui;
-use bevy::{prelude::*, transform};
+use bevy::prelude::*;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
-const DEFAULT_WINDOW_WIDTH: f32 = 500.0;
-const DEFAULT_WINDOW_HEIGHT: f32 = 500.0;
-const DEFAULT_SLICE_SIZE: usize = 10;
-const DEFAULT_CELL_SIZE: f32 = 10.0;
+const DEFAULT_WINDOW_WIDTH: f32 = 1000.0;
+const DEFAULT_WINDOW_HEIGHT: f32 = 700.0;
 
 fn main() {
     App::new()
+        .insert_resource(GlobalDefaults {
+            window_width: DEFAULT_WINDOW_WIDTH,
+            window_height: DEFAULT_WINDOW_HEIGHT,
+        })
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 title: "Conway's Game of Life".into(),
@@ -18,107 +21,12 @@ fn main() {
             }),
             ..default()
         }))
+        // .add_plugins(WorldInspectorPlugin::new())
+        .add_plugins(CameraPlugin)
         .add_plugins(game_of_life::GameOfLifePlugin)
         .add_plugins(ui::MainMenuPlugin)
-        .add_plugins(CameraPlugin)
         .run();
 }
-
-// Camera 
-const CAMERA_MOVE_SPEED: f32 = 15.0;
-const CAMERA_ZOOM_SPEED: f32 = 1.0;
-
-#[derive(Component)]
-struct MainCamera;
-
-#[derive(Component)]
-struct CameraMovement {
-    plane_speed: Vec3,
-    zoom_speed: f32,
-}
-
-struct CameraPlugin;
-
-impl Plugin for CameraPlugin {
-    fn build(&self, app: &mut App) {
-        app
-            .add_systems(Startup, camera_setup)
-            .add_systems(Update, (camera_movement_system, camera_zoom_system));
-    }
-}
-
-fn camera_setup(mut commands: Commands) {
-    commands
-        .spawn(Camera2dBundle::default())
-        .insert(MainCamera)
-        .insert(CameraMovement {
-            plane_speed: Vec3::ZERO,
-            zoom_speed: 0.0,
-        }); 
-}
-
-fn camera_movement_system(
-    mut camera: Query<(&mut Transform, &mut CameraMovement), With<MainCamera>>,
-    keyboard_input: Res<Input<KeyCode>>,
-){
-    
-    let mut move_direction = Vec3::ZERO;
-    if keyboard_input.pressed(KeyCode::W) {
-        move_direction.y = CAMERA_MOVE_SPEED;
-    }
-    if keyboard_input.pressed(KeyCode::A) {
-        move_direction.x = -CAMERA_MOVE_SPEED;
-    }
-    if keyboard_input.pressed(KeyCode::S) {
-        move_direction.y = -CAMERA_MOVE_SPEED;
-    }
-    if keyboard_input.pressed(KeyCode::D) {
-        move_direction.x = CAMERA_MOVE_SPEED;
-    }
-
-    let move_direction = move_direction.normalize_or_zero();
-    let (mut transform, mut movement) = camera.iter_mut()
-        .next()
-        .expect("No transform found on camera MainCamera");
-
-    movement.plane_speed = (move_direction);
-
-    transform.translation += movement.plane_speed;
-
-    if keyboard_input.just_pressed(KeyCode::Space) {
-        movement.plane_speed = Vec3::ZERO;
-        transform.translation = Vec3::ZERO;
-    }
-}
-
-// untested
-fn camera_zoom_system(
-    mut camera: Query<(&mut Transform, &mut CameraMovement), With<MainCamera>>,
-    keyboard_input: Res<Input<KeyCode>>,
-){
-    let mut zoom_direction = 0.0;
-    if keyboard_input.pressed(KeyCode::Q) {
-        zoom_direction = CAMERA_ZOOM_SPEED;
-    }
-    if keyboard_input.pressed(KeyCode::E) {
-        zoom_direction = -CAMERA_ZOOM_SPEED;
-    }
-
-    let (mut transform, mut movement) = camera.iter_mut()
-        .next()
-        .expect("No transform found on camera MainCamera");
-
-    movement.zoom_speed = zoom_direction;
-
-    transform.scale += Vec3::splat(movement.zoom_speed);
-
-    if keyboard_input.just_pressed(KeyCode::Space) {
-        movement.zoom_speed = 0.0;
-        transform.scale = Vec3::ONE;
-    }
-}
-
-
 
 
 //
