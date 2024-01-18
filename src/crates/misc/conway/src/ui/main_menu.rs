@@ -47,8 +47,8 @@ impl Plugin for MainMenuPlugin {
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    // commands.spawn(Camera2dBundle::default());
     commands
+        // Set up the main container spanning the entire screen...
         .spawn(NodeBundle {
             style: Style {
                 flex_direction: FlexDirection::ColumnReverse,
@@ -75,6 +75,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     background_color: BUTTON_SECTION_BACKGROUND_COLOR.into(),
                     ..default()
                 })
+                // row of buttons
                 .with_children(|parent| {
                     // "PREV" button
                     spawn_button(parent, &asset_server, "PREV", ButtonAction::Prev);

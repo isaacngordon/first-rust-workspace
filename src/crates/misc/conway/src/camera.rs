@@ -5,19 +5,24 @@ pub const CAMERA_ZOOM_SPEED: f32 = 0.01;
 
 #[derive(Resource)]
 pub struct GlobalDefaults{
+    /// The default width of the window.
     pub window_width: f32,
+    /// The default height of the window.
     pub window_height: f32,
 }
 
+/// An empty component that marks an entity as the main camera.
 #[derive(Component)]
 pub struct MainCamera;
 
+/// A component that stores the movement speed of the camera.
 #[derive(Component)]
 pub struct CameraMovement {
     plane_speed: Vec3,
     zoom_speed: f32,
 }
 
+/// A plugin that adds a camera to the scene.
 pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
@@ -51,6 +56,8 @@ fn camera_movement_system(
     keyboard_input: Res<Input<KeyCode>>,
 ) {
     let mut move_direction = Vec3::ZERO;
+
+    // Move the camera with WASD
     if keyboard_input.pressed(KeyCode::W) {
         move_direction.y = CAMERA_MOVE_SPEED;
     }
@@ -74,6 +81,7 @@ fn camera_movement_system(
 
     transform.translation += movement.plane_speed;
 
+    // Reset the camera to the default position when the space bar is pressed
     if keyboard_input.just_pressed(KeyCode::Space) {
         movement.plane_speed = Vec3::ZERO;
         transform.translation = Vec3::new(global_defaults.window_width / 2.0, global_defaults.window_height / 2.0, 0.0)
@@ -85,6 +93,8 @@ fn camera_zoom_system(
     keyboard_input: Res<Input<KeyCode>>,
 ) {
     let mut zoom_direction = 0.0;
+
+    // Zoom in/out with Q/E
     if keyboard_input.pressed(KeyCode::Q) {
         zoom_direction = CAMERA_ZOOM_SPEED;
     }
@@ -101,6 +111,7 @@ fn camera_zoom_system(
 
     transform.scale += Vec3::splat(movement.zoom_speed);
 
+    // Reset the camera to the default zoom level when the space bar is pressed
     if keyboard_input.just_pressed(KeyCode::Space) {
         movement.zoom_speed = 0.0;
         transform.scale = Vec3::splat(10.0);
