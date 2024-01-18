@@ -1,7 +1,7 @@
 use conway::{game_of_life, GlobalDefaults, CameraPlugin};
 mod ui;
 use bevy::prelude::*;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+// use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 const DEFAULT_WINDOW_WIDTH: f32 = 1000.0;
 const DEFAULT_WINDOW_HEIGHT: f32 = 700.0;

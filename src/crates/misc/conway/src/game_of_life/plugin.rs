@@ -1,15 +1,14 @@
-use bevy::prelude::*;
 use crate::game_of_life::Slice;
+use bevy::prelude::*;
 
 const SPRITE_SIZE: f32 = 252.0;
-const DEFAULT_SLICE_SIZE: usize = 4;
+const DEFAULT_SLICE_SIZE: usize = 10;
 
 pub struct GameOfLifePlugin;
 
 impl Plugin for GameOfLifePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .insert_resource(GameOfLife::default())
+        app.insert_resource(GameOfLife::default())
             .add_systems(Startup, setup);
     }
 }
@@ -21,13 +20,13 @@ struct Cell {
 
 enum CellState {
     Alive,
-    Dead
+    Dead,
 }
 
 #[derive(Resource)]
 struct CellTexture {
     alive: Handle<Image>,
-    dead: Handle<Image>
+    dead: Handle<Image>,
 }
 
 #[derive(Default)]
@@ -46,7 +45,13 @@ impl Default for GameOfLife {
     }
 }
 
-fn setup(mut commands: Commands, mut game_of_life: Res<GameOfLife>, asset_server: Res<AssetServer>) {
+fn setup(
+    mut commands: Commands,
+    mut game_of_life: ResMut<GameOfLife>,
+    asset_server: Res<AssetServer>,
+) {
+    game_of_life.slice.randomize();
+    
     for x in 0..game_of_life.slice.get_size() {
         for y in 0..game_of_life.slice.get_size() {
             let cell = game_of_life.slice.get(x, y);
@@ -56,15 +61,27 @@ fn setup(mut commands: Commands, mut game_of_life: Res<GameOfLife>, asset_server
                         ..Default::default()
                     },
                     transform: Transform {
-                        translation: Vec3::new((x as f32) * SPRITE_SIZE, (y as f32) * SPRITE_SIZE, 0.0),
-                        scale : Vec3::ONE,
+                        translation: Vec3::new(
+                            (x as f32) * SPRITE_SIZE,
+                            (y as f32) * SPRITE_SIZE,
+                            0.0,
+                        ),
+                        scale: Vec3::ONE,
                         ..Default::default()
-                    }, 
-                    texture: asset_server.load("sprites/dead_cell.png"),
+                    },
+                    texture: if cell {
+                        asset_server.load("sprites/alive_cell.png")
+                    } else {
+                        asset_server.load("sprites/dead_cell.png")
+                    },
                     ..Default::default()
                 })
                 .insert(Cell {
-                    alive: if cell { CellState::Alive } else { CellState::Dead }
+                    alive: if cell {
+                        CellState::Alive
+                    } else {
+                        CellState::Dead
+                    },
                 });
         }
     }
@@ -75,10 +92,9 @@ fn setup(mut commands: Commands, mut game_of_life: Res<GameOfLife>, asset_server
     // });
     commands.insert_resource(CellTexture {
         alive: asset_server.load("sprites/alive_cell.png"),
-        dead: asset_server.load("sprites/dead_cell.png")
+        dead: asset_server.load("sprites/dead_cell.png"),
     });
 }
-
 
 // fn update_game_of_life(time: Res<Time>, mut game_of_life: ResMut<GameOfLife>) {
 
