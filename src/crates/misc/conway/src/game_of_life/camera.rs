@@ -9,6 +9,10 @@ pub struct GlobalDefaults{
     pub window_width: f32,
     /// The default height of the window.
     pub window_height: f32,
+    /// The default size of the game board.
+    pub game_size: usize,
+    /// The default continuous frame rate.
+    pub continuous_frame_rate: f32,
 }
 
 /// An empty component that marks an entity as the main camera.
@@ -77,7 +81,7 @@ fn camera_movement_system(
         .next()
         .expect("No transform found on camera MainCamera");
 
-    movement.plane_speed = (move_direction);
+    movement.plane_speed = move_direction;
 
     transform.translation += movement.plane_speed;
 

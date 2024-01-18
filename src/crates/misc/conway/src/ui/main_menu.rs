@@ -1,6 +1,5 @@
 use bevy::{prelude::*, ui::FocusPolicy};
 
-const CONTAINER_BACKGROUND_COLOR: Color = Color::DARK_GRAY;
 const BUTTON_SECTION_BACKGROUND_COLOR: Color = Color::CRIMSON;
 
 const NORMAL_BUTTON_COLOR: Color = Color::WHITE;
@@ -151,14 +150,14 @@ fn spawn_button(
     button_action: ButtonAction,
 ) {
     parent
-        .spawn(build_button(asset_server, text))
+        .spawn(build_button_bundle())
         .with_children(|parent| {
             parent.spawn(build_button_text(asset_server, text));
         })
         .insert(MenuButton(button_action));
 }
 
-fn build_button(asset_server: &Res<AssetServer>, text: &str) -> ButtonBundle {
+fn build_button_bundle() -> ButtonBundle {
     ButtonBundle {
         style: Style {
             height: Val::Px(40.0),

@@ -1,16 +1,23 @@
-use conway::{game_of_life, GlobalDefaults, CameraPlugin};
-mod ui;
+use conway::{
+    game_of_life::{GlobalDefaults, CameraPlugin, plugin::GameOfLifePlugin}, 
+    ui::MainMenuPlugin
+};
 use bevy::prelude::*;
-// use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 const DEFAULT_WINDOW_WIDTH: f32 = 1000.0;
 const DEFAULT_WINDOW_HEIGHT: f32 = 700.0;
+
+const DEFAULT_GAME_SIZE: usize = 10;
+const DEFAULT_CONTINUOUS_FRAME_RATE: f32 = 5.0;
 
 fn main() {
     App::new()
         .insert_resource(GlobalDefaults {
             window_width: DEFAULT_WINDOW_WIDTH,
             window_height: DEFAULT_WINDOW_HEIGHT,
+            game_size: DEFAULT_GAME_SIZE,
+            continuous_frame_rate: DEFAULT_CONTINUOUS_FRAME_RATE,
         })
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
@@ -21,10 +28,10 @@ fn main() {
             }),
             ..default()
         }))
-        // .add_plugins(WorldInspectorPlugin::new())
+        .add_plugins(WorldInspectorPlugin::new())
         .add_plugins(CameraPlugin)
-        .add_plugins(game_of_life::GameOfLifePlugin)
-        .add_plugins(ui::MainMenuPlugin)
+        .add_plugins(GameOfLifePlugin)
+        .add_plugins(MainMenuPlugin)
         .run();
 }
 

@@ -1,15 +1,21 @@
-use crate::game_of_life::Slice;
 use bevy::prelude::*;
 
+use crate::game_of_life::GlobalDefaults;
+use crate::game_of_life::Slice;
+use crate::ui::NextStepEvent;
+
 const SPRITE_SIZE: f32 = 252.0;
-const DEFAULT_SLICE_SIZE: usize = 10;
 
 pub struct GameOfLifePlugin;
 
 impl Plugin for GameOfLifePlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(GameOfLife::default())
-            .add_systems(Startup, setup);
+        app.insert_resource(ContinuousSteps {
+            toggle: true,
+            last_draw_time: 0.0,
+        })
+            .add_systems(Startup, setup)
+            .add_systems(Update, update_game_of_life);
     }
 }
 
@@ -29,29 +35,42 @@ struct CellTexture {
     dead: Handle<Image>,
 }
 
-#[derive(Default)]
-struct Continuous(bool);
+#[derive(Resource)]
+struct ContinuousSteps {
+    toggle: bool,
+    last_draw_time: f64,
+}
 
 #[derive(Resource)]
 pub struct GameOfLife {
     slice: Slice,
 }
 
-impl Default for GameOfLife {
-    fn default() -> Self {
-        Self {
-            slice: Slice::new(DEFAULT_SLICE_SIZE),
-        }
-    }
-}
-
 fn setup(
     mut commands: Commands,
-    mut game_of_life: ResMut<GameOfLife>,
+    global_defaults: Res<GlobalDefaults>,
     asset_server: Res<AssetServer>,
 ) {
+    let mut game_of_life = GameOfLife {
+        slice: Slice::new(global_defaults.game_size),
+    };
+    let cell_textures = CellTexture {
+        alive: asset_server.load("sprites/alive_cell.png"),
+        dead: asset_server.load("sprites/dead_cell.png"),
+    };
+
     game_of_life.slice.randomize();
-    
+    spawn_game_of_life_cells(&mut commands, &cell_textures, &game_of_life);
+
+    commands.insert_resource(game_of_life);
+    commands.insert_resource(cell_textures);
+}
+
+fn spawn_game_of_life_cells(
+    commands: &mut Commands,
+    cell_textures: &CellTexture,
+    game_of_life: &GameOfLife,
+) {
     for x in 0..game_of_life.slice.get_size() {
         for y in 0..game_of_life.slice.get_size() {
             let cell = game_of_life.slice.get(x, y);
@@ -70,9 +89,9 @@ fn setup(
                         ..Default::default()
                     },
                     texture: if cell {
-                        asset_server.load("sprites/alive_cell.png")
+                        cell_textures.alive.clone()
                     } else {
-                        asset_server.load("sprites/dead_cell.png")
+                        cell_textures.dead.clone()
                     },
                     ..Default::default()
                 })
@@ -85,24 +104,48 @@ fn setup(
                 });
         }
     }
-    // commands.spawn(Camera2dBundle::default());
-    // commands.spawn(SpriteBundle{
-    //     texture: asset_server.load("sprites/dead_cell.png"),
-    //     ..default()
-    // });
-    commands.insert_resource(CellTexture {
-        alive: asset_server.load("sprites/alive_cell.png"),
-        dead: asset_server.load("sprites/dead_cell.png"),
-    });
 }
 
-// fn update_game_of_life(time: Res<Time>, mut game_of_life: ResMut<GameOfLife>) {
+fn update_game_of_life(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut continuous: ResMut<ContinuousSteps>,
+    global_defaults: Res<GlobalDefaults>,
+    cell_textures: Res<CellTexture>,
+    mut next_step_events: EventReader<NextStepEvent>,
+    mut game_of_life: ResMut<GameOfLife>,
+    spawned_cells: Query<(Entity, &mut Cell)>,
+) {
+    // Update the game state at the default FPS rate if continuous steps are enabled
+    // Otherwise, only update the game state when the user clicks the "Next" button ie NextStepEvent
 
-//     // Update the game state every second or so
-//     if time.seconds_since_startup() % 1.0 < 0.05 {
-//         game_of_life.slice.next_generation_naive(); // Or use your optimized version
-//     }
-// }
+    match (continuous.toggle, next_step_events.read().next().is_some()) {
+        // not continuous and next step event is true, so continue
+        (false, true) => {}
+        // no reason to update, lets return
+        (false, false) => {
+            return;
+        }
+        // continuous is true, so we need to check if it is time to update
+        (true, _) => {
+            if time.elapsed_seconds_f64() - continuous.last_draw_time < (1.0 / global_defaults.continuous_frame_rate).into() {
+                return;
+            }
+        }
+    }
+
+    // clear the board
+    for (entity, _) in spawned_cells.iter() {
+        commands.entity(entity).despawn();
+    }
+
+    // next step
+    game_of_life.slice.next_generation_naive_optimized();
+
+    // spawn the new board
+    spawn_game_of_life_cells(&mut commands, &cell_textures, &game_of_life);
+    continuous.last_draw_time = time.elapsed_seconds_f64();
+}
 
 // struct Cell;
 
