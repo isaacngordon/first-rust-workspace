@@ -12,7 +12,7 @@ pub struct GameOfLifePlugin;
 impl Plugin for GameOfLifePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ContinuousSteps {
-            toggle: true,
+            toggle: false,
             last_draw_time: 0.0,
         })
             .add_systems(Startup, setup)

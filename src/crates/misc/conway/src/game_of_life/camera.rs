@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
-pub const CAMERA_MOVE_SPEED: f32 = 15.0;
-pub const CAMERA_ZOOM_SPEED: f32 = 0.01;
+pub const CAMERA_MOVE_SPEED: f32 = 50.0;
+pub const CAMERA_ZOOM_SPEED: f32 = 0.1;
 
 #[derive(Resource)]
 pub struct GlobalDefaults{
@@ -75,7 +75,7 @@ fn camera_movement_system(
         move_direction.x = CAMERA_MOVE_SPEED;
     }
 
-    let move_direction = move_direction.normalize_or_zero();
+    let move_direction = move_direction;
     let (mut transform, mut movement) = camera
         .iter_mut()
         .next()
