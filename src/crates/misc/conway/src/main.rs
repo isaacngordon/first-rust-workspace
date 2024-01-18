@@ -8,7 +8,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 const DEFAULT_WINDOW_WIDTH: f32 = 1000.0;
 const DEFAULT_WINDOW_HEIGHT: f32 = 700.0;
 
-const DEFAULT_GAME_SIZE: usize = 10;
+const DEFAULT_GAME_SIZE: usize = 32;
 const DEFAULT_CONTINUOUS_FRAME_RATE: f32 = 5.0;
 
 fn main() {
