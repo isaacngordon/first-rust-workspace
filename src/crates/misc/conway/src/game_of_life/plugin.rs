@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use crate::game_of_life::GlobalDefaults;
 use crate::game_of_life::Slice;
 use crate::ui::NextStepEvent;
+use crate::ui::ToggleContinuousEvent;
 
 const SPRITE_SIZE: f32 = 252.0;
 
@@ -15,6 +16,7 @@ impl Plugin for GameOfLifePlugin {
             last_draw_time: 0.0,
         })
             .add_systems(Startup, setup)
+            .add_systems(Update, update_resources)
             .add_systems(Update, update_game_of_life);
     }
 }
@@ -103,6 +105,12 @@ fn spawn_game_of_life_cells(
                     },
                 });
         }
+    }
+}
+
+fn update_resources(mut continuous: ResMut<ContinuousSteps>, mut toggle_continuous_events: EventReader<ToggleContinuousEvent>) {
+    for _ in toggle_continuous_events.read() {
+        continuous.toggle = !continuous.toggle;
     }
 }
 

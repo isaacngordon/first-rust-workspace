@@ -1,4 +1,5 @@
 use bevy::{prelude::*, ui::FocusPolicy};
+use bevy_inspector_egui::egui::Checkbox;
 
 const BUTTON_SECTION_BACKGROUND_COLOR: Color = Color::CRIMSON;
 
@@ -23,6 +24,9 @@ pub struct PreviousStepEvent;
 #[derive(Event)]
 pub struct RandomizeGameEvent;
 
+#[derive(Event)]
+pub struct ToggleContinuousEvent;
+
 #[derive(Component)]
 struct MenuButton(ButtonAction);
 
@@ -31,6 +35,7 @@ enum ButtonAction {
     Next,
     Prev,
     Randomize,
+    ToggleContinuous,
 }
 
 pub struct MainMenuPlugin;
@@ -40,6 +45,7 @@ impl Plugin for MainMenuPlugin {
         app.add_event::<NextStepEvent>()
             .add_event::<PreviousStepEvent>()
             .add_event::<RandomizeGameEvent>()
+            .add_event::<ToggleContinuousEvent>()
             .add_systems(Startup, setup)
             .add_systems(Update, button_system);
     }
@@ -60,7 +66,8 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         })
         .with_children(|parent| {
-            // Set up the top bar...
+            // Bottom UP
+            // 2nd row of buttons
             parent
                 .spawn(NodeBundle {
                     style: Style {
@@ -74,7 +81,30 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                     background_color: BUTTON_SECTION_BACKGROUND_COLOR.into(),
                     ..default()
                 })
-                // row of buttons
+                .with_children(|parent| {
+                    // "PREV" button
+                    spawn_button(
+                        parent,
+                        &asset_server,
+                        "Toggle",
+                        ButtonAction::ToggleContinuous,
+                    );
+                });
+
+            // first row of buttons
+            parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        height: Val::Px(50.0),
+                        width: Val::Percent(100.0),
+                        flex_direction: FlexDirection::Row,
+                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::SpaceEvenly,
+                        ..default()
+                    },
+                    background_color: BUTTON_SECTION_BACKGROUND_COLOR.into(),
+                    ..default()
+                })
                 .with_children(|parent| {
                     // "PREV" button
                     spawn_button(parent, &asset_server, "PREV", ButtonAction::Prev);
@@ -85,7 +115,6 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 });
         });
 }
-
 
 fn button_system(
     mut interaction_query: Query<
@@ -102,6 +131,7 @@ fn button_system(
     mut next_writer: EventWriter<NextStepEvent>,
     mut prev_writer: EventWriter<PreviousStepEvent>,
     mut random_writer: EventWriter<RandomizeGameEvent>,
+    mut continuous_writer: EventWriter<ToggleContinuousEvent>,
 ) {
     for (interaction, menu_btn, mut bg_color, mut border_color, children) in &mut interaction_query
     {
@@ -124,6 +154,10 @@ fn button_system(
                     ButtonAction::Randomize => {
                         println!("Randomize");
                         random_writer.send(RandomizeGameEvent);
+                    }
+                    ButtonAction::ToggleContinuous => {
+                        println!("Toggle Continuous");
+                        continuous_writer.send(ToggleContinuousEvent);
                     }
                 }
             }
