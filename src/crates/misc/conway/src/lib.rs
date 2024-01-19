@@ -3,7 +3,7 @@ pub mod ui;
 
 #[cfg(test)]
 mod tests {
-    use super::game_of_life::*;
+    use crate::game_of_life::slice::Slice;
 
     // TEST 1 on 13x13 grid for 16 steps
     //  0 0 0 0 0 0 0 0 0 0 0 0 0                    0 0 0 0 0 0 1 0 0 0 0 0 0

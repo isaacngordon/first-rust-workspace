@@ -16,16 +16,12 @@ const PRESSED_BUTTON_TEXT_COLOR: Color = Color::YELLOW;
 const PRESSED_BUTTON_BORDER_COLOR: Color = Color::YELLOW;
 
 #[derive(Event)]
-pub struct NextStepEvent;
-
-#[derive(Event)]
-pub struct PreviousStepEvent;
-
-#[derive(Event)]
-pub struct RandomizeGameEvent;
-
-#[derive(Event)]
-pub struct ToggleContinuousEvent;
+pub enum MenuButtonEvent {
+    NextStepEvent,
+    PreviousStepEvent,
+    RandomizeGameEvent,
+    ToggleContinuousEvent,
+}
 
 #[derive(Component)]
 struct MenuButton(ButtonAction);
@@ -42,10 +38,7 @@ pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<NextStepEvent>()
-            .add_event::<PreviousStepEvent>()
-            .add_event::<RandomizeGameEvent>()
-            .add_event::<ToggleContinuousEvent>()
+        app.add_event::<MenuButtonEvent>()
             .add_systems(Startup, setup)
             .add_systems(Update, button_system);
     }
@@ -128,10 +121,7 @@ fn button_system(
         (Changed<Interaction>, With<Button>),
     >,
     mut text_query: Query<&mut Text>,
-    mut next_writer: EventWriter<NextStepEvent>,
-    mut prev_writer: EventWriter<PreviousStepEvent>,
-    mut random_writer: EventWriter<RandomizeGameEvent>,
-    mut continuous_writer: EventWriter<ToggleContinuousEvent>,
+    mut button_event_writer: EventWriter<MenuButtonEvent>,
 ) {
     for (interaction, menu_btn, mut bg_color, mut border_color, children) in &mut interaction_query
     {
@@ -145,19 +135,19 @@ fn button_system(
                 match menu_btn.0 {
                     ButtonAction::Next => {
                         println!("Next");
-                        next_writer.send(NextStepEvent);
+                        button_event_writer.send(MenuButtonEvent::NextStepEvent);
                     }
                     ButtonAction::Prev => {
                         println!("Prev");
-                        prev_writer.send(PreviousStepEvent);
+                        button_event_writer.send(MenuButtonEvent::PreviousStepEvent);
                     }
                     ButtonAction::Randomize => {
                         println!("Randomize");
-                        random_writer.send(RandomizeGameEvent);
+                        button_event_writer.send(MenuButtonEvent::RandomizeGameEvent);
                     }
                     ButtonAction::ToggleContinuous => {
                         println!("Toggle Continuous");
-                        continuous_writer.send(ToggleContinuousEvent);
+                        button_event_writer.send(MenuButtonEvent::ToggleContinuousEvent);
                     }
                 }
             }

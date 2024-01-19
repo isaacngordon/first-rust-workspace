@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 
 use crate::game_of_life::GlobalDefaults;
-use crate::game_of_life::Slice;
-use crate::ui::NextStepEvent;
-use crate::ui::ToggleContinuousEvent;
+use crate::game_of_life::game::GameOfLife;
+
+use crate::ui::main_menu::MenuButtonEvent;
 
 const SPRITE_SIZE: f32 = 252.0;
 
@@ -43,25 +43,22 @@ struct ContinuousSteps {
     last_draw_time: f64,
 }
 
-#[derive(Resource)]
-pub struct GameOfLife {
-    slice: Slice,
-}
 
 fn setup(
     mut commands: Commands,
     global_defaults: Res<GlobalDefaults>,
     asset_server: Res<AssetServer>,
 ) {
-    let mut game_of_life = GameOfLife {
-        slice: Slice::new(global_defaults.game_size),
-    };
+    let mut game_of_life = GameOfLife::new(
+        global_defaults.game_buffer_size, 
+        global_defaults.game_size
+    );
+    
     let cell_textures = CellTexture {
         alive: asset_server.load("sprites/alive_cell.png"),
         dead: asset_server.load("sprites/dead_cell.png"),
     };
 
-    game_of_life.slice.randomize();
     spawn_game_of_life_cells(&mut commands, &cell_textures, &game_of_life);
 
     commands.insert_resource(game_of_life);
@@ -73,9 +70,9 @@ fn spawn_game_of_life_cells(
     cell_textures: &CellTexture,
     game_of_life: &GameOfLife,
 ) {
-    for x in 0..game_of_life.slice.get_size() {
-        for y in 0..game_of_life.slice.get_size() {
-            let cell = game_of_life.slice.get(x, y);
+    for x in 0..game_of_life.get_curr_slice().get_size() {
+        for y in 0..game_of_life.get_curr_slice().get_size() {
+            let cell = game_of_life.get_curr_slice().get(x, y);
             commands
                 .spawn(SpriteBundle {
                     sprite: Sprite {
@@ -108,9 +105,14 @@ fn spawn_game_of_life_cells(
     }
 }
 
-fn update_resources(mut continuous: ResMut<ContinuousSteps>, mut toggle_continuous_events: EventReader<ToggleContinuousEvent>) {
-    for _ in toggle_continuous_events.read() {
-        continuous.toggle = !continuous.toggle;
+fn update_resources(mut continuous: ResMut<ContinuousSteps>, mut button_events: EventReader<MenuButtonEvent>) {
+    for click in button_events.read() {
+        match click {
+            MenuButtonEvent::ToggleContinuousEvent => {
+                continuous.toggle = !continuous.toggle;
+            }
+            _ => {}
+        }
     }
 }
 
@@ -120,39 +122,48 @@ fn update_game_of_life(
     mut continuous: ResMut<ContinuousSteps>,
     global_defaults: Res<GlobalDefaults>,
     cell_textures: Res<CellTexture>,
-    mut next_step_events: EventReader<NextStepEvent>,
+    mut button_events: EventReader<MenuButtonEvent>,
     mut game_of_life: ResMut<GameOfLife>,
     spawned_cells: Query<(Entity, &mut Cell)>,
 ) {
-    // Update the game state at the default FPS rate if continuous steps are enabled
-    // Otherwise, only update the game state when the user clicks the "Next" button ie NextStepEvent
-
-    match (continuous.toggle, next_step_events.read().next().is_some()) {
-        // not continuous and next step event is true, so continue
-        (false, true) => {}
-        // no reason to update, lets return
-        (false, false) => {
-            return;
-        }
-        // continuous is true, so we need to check if it is time to update
-        (true, _) => {
+    // update the game of life state
+    let mut changed = false;
+    match continuous.toggle {
+        true => {
             if time.elapsed_seconds_f64() - continuous.last_draw_time < (1.0 / global_defaults.continuous_frame_rate).into() {
                 return;
             }
+            game_of_life.step_forward();
+            changed = true;
         }
+        false => {
+            for click in button_events.read() {
+                match click {
+                    MenuButtonEvent::NextStepEvent => {
+                        game_of_life.step_forward();
+                    }
+                    MenuButtonEvent::PreviousStepEvent => {
+                        game_of_life.step_backward();
+                    }
+                    MenuButtonEvent::RandomizeGameEvent => {
+                        game_of_life.reset();
+                    }
+                    _ => {}
+                }
+                changed = true;
+            }
+        }
+    } 
+
+    if changed {
+        // clear the board
+        for (entity, _) in spawned_cells.iter() {
+            commands.entity(entity).despawn();
+        }
+        // spawn the new board
+        spawn_game_of_life_cells(&mut commands, &cell_textures, &game_of_life);
+        continuous.last_draw_time = time.elapsed_seconds_f64();
     }
-
-    // clear the board
-    for (entity, _) in spawned_cells.iter() {
-        commands.entity(entity).despawn();
-    }
-
-    // next step
-    game_of_life.slice.next_generation_naive_optimized();
-
-    // spawn the new board
-    spawn_game_of_life_cells(&mut commands, &cell_textures, &game_of_life);
-    continuous.last_draw_time = time.elapsed_seconds_f64();
 }
 
 // struct Cell;

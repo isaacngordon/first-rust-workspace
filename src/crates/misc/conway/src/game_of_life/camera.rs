@@ -13,6 +13,8 @@ pub struct GlobalDefaults{
     pub game_size: usize,
     /// The default continuous frame rate.
     pub continuous_frame_rate: f32,
+    /// The default size of the game buffer.
+    pub game_buffer_size: usize,
 }
 
 /// An empty component that marks an entity as the main camera.

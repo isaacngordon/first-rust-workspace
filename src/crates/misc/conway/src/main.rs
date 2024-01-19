@@ -18,6 +18,7 @@ fn main() {
             window_height: DEFAULT_WINDOW_HEIGHT,
             game_size: DEFAULT_GAME_SIZE,
             continuous_frame_rate: DEFAULT_CONTINUOUS_FRAME_RATE,
+            game_buffer_size: 100,
         })
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {

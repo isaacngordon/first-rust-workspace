@@ -1,6 +1,6 @@
 // benches/slice_benchmark.rs
 use criterion::{criterion_group, criterion_main, Criterion};
-use conway::game_of_life::Slice;
+use conway::game_of_life::slice::Slice;
 
 fn benchmark_next_generation(c: &mut Criterion) {
     let mut group = c.benchmark_group("Slice next_generation");
