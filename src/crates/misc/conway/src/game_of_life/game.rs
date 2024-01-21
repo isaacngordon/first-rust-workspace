@@ -18,6 +18,7 @@ pub struct GameOfLife {
 }
 
 impl GameOfLife {
+    /// Create a new GameOfLife with the given slice buffer size and slice size, and initialize the slice
     pub fn new(slice_buffer_max_size: usize, slice_size: usize) -> GameOfLife {
         let mut game = GameOfLife {
             slice_buffer_max_size,
@@ -32,6 +33,8 @@ impl GameOfLife {
         game
     }
 
+    /// Initialize the slice buffer with a new, randomly generated slice of the given size.
+    /// Panics if the slice buffer is not empty.
     fn init(&mut self, slice_size: usize) {
         if self.slice_buffer.len() > 0 {
             panic!("GameOfLife::init() called on a non-empty slice buffer");
@@ -41,6 +44,8 @@ impl GameOfLife {
         self.slice_buffer.push(slice);
     }
 
+    /// Reset the game. This is like new(), but without the re-allocation.
+    /// Panics if the slice buffer is not empty.
     pub fn reset (&mut self) {
         let slice_size = self.slice_buffer[0].get_size();
         self.curr_slice_idx = 0;
@@ -50,14 +55,18 @@ impl GameOfLife {
         self.init(slice_size);
     }
 
+    /// Get the current slice as read-only
     pub fn get_curr_slice(&self) -> &Slice {
         &self.slice_buffer[self.curr_slice_idx as usize]
     }
 
+    /// Get the current slice as mutable
     pub fn get_curr_slice_mut(&mut self) -> &mut Slice {
         &mut self.slice_buffer[self.curr_slice_idx as usize]
     }
 
+    /// Get the previous slice as read-only
+    /// Panics if there is no previous slice
     pub fn get_prev_slice(&self) -> &Slice {
         if self.prev_slice_idx < 0 {
             panic!("GameOfLife::get_prev_slice() called on a slice buffer with no previous slice");
@@ -65,6 +74,8 @@ impl GameOfLife {
         &self.slice_buffer[self.prev_slice_idx as usize]
     }
 
+    /// Get the previous slice as mutable.
+    /// Panics if there is no previous slice.
     pub fn get_prev_slice_mut(&mut self) -> &mut Slice {
         if self.prev_slice_idx < 0 {
             panic!("GameOfLife::get_prev_slice_mut() called on a slice buffer with no previous slice");
@@ -72,6 +83,8 @@ impl GameOfLife {
         &mut self.slice_buffer[self.prev_slice_idx as usize]
     }
 
+    /// Get the next slice as read-only.
+    /// Panics if there is no next slice.
     pub fn get_next_slice(&self) -> Option<&Slice> {
         match self.next_slice_idx {
             Some(idx) => {
@@ -84,6 +97,8 @@ impl GameOfLife {
         }
     }
 
+    /// Get the next slice as mutable.
+    /// Panics if there is no next slice.
     pub fn get_next_slice_mut(&mut self) -> Option<&mut Slice> {
         match self.next_slice_idx {
             Some(idx) => {
@@ -96,6 +111,9 @@ impl GameOfLife {
         }
     }
 
+    /// Step forward one generation in the game by either reloading the next slice from the slice buffer, or computing it if it does not exist.
+    /// If the slice buffer is full, the oldest slice is removed. 
+    /// Currently, this utilizes the naive optimized algorithm.
     pub fn step_forward(&mut self) {
         // if there is no next slice, compute it
         if self.curr_slice_idx == self.slice_buffer.len() as i64 - 1 {
@@ -122,6 +140,7 @@ impl GameOfLife {
         };
     }
 
+    /// Step backward one generation in the gam by reloading the previous slice from the slice buffer, then updating the indices.
     pub fn step_backward(&mut self) {
         // if there is no previous slice, do nothing
         if self.prev_slice_idx < 0 {
