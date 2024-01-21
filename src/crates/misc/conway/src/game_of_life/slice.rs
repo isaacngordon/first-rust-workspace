@@ -1,11 +1,12 @@
 use std::fmt;
 
-
+/// Represents a universe slice of cells in Conway's Game of Life
 #[derive(Clone, Debug)]
 pub struct Slice {
+    /// One side of the square grid. i.e. n = 3 means a 3x3 grid
     n: usize,
+    /// The cells in the slice, stored in row-major order
     cells: Vec<bool>,
-    // orphan: bool, // this state could not be derived from a previous state (i.e. it must have been randomly generated or manually set)
 }
 
 impl Slice {
@@ -14,7 +15,6 @@ impl Slice {
         Slice {
             n,
             cells,
-            // orphan: false,
         }
     }
 
