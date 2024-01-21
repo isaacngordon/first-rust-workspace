@@ -183,6 +183,14 @@ if ! command -v bacon >/dev/null 2>&1; then
     install_with_cargo bacon
 fi
 
+# If and only if on macos then install unitility stats app for toolbar using brew
+# brew install stats
+if [[ "${PLATFORM}" == "Darwin"* ]]; then
+    if ! command -v stats >/dev/null 2>&1; then
+        echo "Stats is not installed. Attempting to install Stats..."
+        brew install stats || echo "Failed to install Stats. Moving on to other things."
+    fi
+fi
 
 
 # --------------------------------------------------
