@@ -1,5 +1,5 @@
-# Oxygen
-A single shell for autonomous agents and their hoomans, built in Rust.
+# LLM Assited Learning Rust (My First Rust Workspace)
+Learning Rust using ChatGPT
 
 ## Motivation
 - Sick of bouncing between languages and re-writing code
